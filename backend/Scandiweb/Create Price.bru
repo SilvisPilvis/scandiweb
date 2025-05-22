@@ -11,21 +11,31 @@ post {
 }
 
 body:graphql {
-  mutation {
-    createPrice(
-      price: {
-        amount: 144.69,
-        currency: {
-          label: "USD",
-          symbol: "$"
-        }
+  # mutation {
+  #   createPrice(
+  #     price: {
+  #       amount: 144.69,
+  #       currency: {
+  #         label: "USD",
+  #         symbol: "$"
+  #       }
+  #     }
+  #   ) {
+  #     amount
+  #     currency {
+  #       label
+  #       symbol
+  #     }
+  #   }
+  # }
+  
+  query {
+    getPrices {
+        amount
+      	currency {
+      	label
+      	symbol
+      	}
       }
-    ) {
-      amount
-      currency {
-        label
-        symbol
-      }
-    }
   }
 }

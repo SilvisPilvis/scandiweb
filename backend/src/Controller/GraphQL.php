@@ -149,24 +149,6 @@ class GraphQL
                 ]
             );
 
-            $productInputType = new InputObjectType(
-                [
-                'name' => 'ProductInput',
-                'fields' => [
-                    'id' => Type::string(), // Allow null for auto-generated ID
-                    'name' => Type::nonNull(Type::string()),
-                    'inStock' => Type::nonNull(Type::boolean()),
-                    'gallery' => Type::nonNull(Type::listOf(Type::nonNull(Type::string()))),
-                    'description' => Type::nonNull(Type::string()),
-                    // You'll need a way to handle category input - could be an ID or another input type
-                    'category' => Type::nonNull(Type::string()), // Assuming category ID for simplicity
-                    'attributes' => Type::nonNull(Type::listOf(Type::nonNull($attributeSetInputType))),
-                    'prices' => Type::nonNull(Type::listOf(Type::nonNull($priceInputType))),
-                    'brand' => Type::nonNull(Type::string()),
-                ],
-                ]
-            );
-
             $categoryType = new ObjectType(
                 [
                     'name' => 'Category',
@@ -202,6 +184,24 @@ class GraphQL
                 ]
             );
 
+            $productInputType = new InputObjectType(
+                [
+                'name' => 'ProductInput',
+                'fields' => [
+                    'id' => Type::string(), // Allow null for auto-generated ID
+                    'name' => Type::nonNull(Type::string()),
+                    'inStock' => Type::nonNull(Type::boolean()),
+                    'gallery' => Type::nonNull(Type::listOf(Type::nonNull(Type::string()))),
+                    'description' => Type::nonNull(Type::string()),
+                    // You'll need a way to handle category input - could be an ID or another input type
+                    'category' => Type::nonNull(Type::listOf(Type::nonNull($categoryInputType))), // Assuming category ID for simplicity
+                    'attributes' => Type::nonNull(Type::listOf(Type::nonNull($attributeSetInputType))),
+                    'prices' => Type::nonNull(Type::listOf(Type::nonNull($priceInputType))),
+                    'brand' => Type::nonNull(Type::string()),
+                ],
+                ]
+            );
+
             $queryType = new ObjectType(
                 [
                 'name' => 'Query',
@@ -221,8 +221,100 @@ class GraphQL
 
                             return $result;
                         }
-
                     ],
+                    'getCategory' => [
+                        'type' => $categoryType,
+                        'args' => [
+                            'id' => Type::nonNull(Type::string()),
+                        ],
+                        'resolve' => static function ($rootValue, array $args, $ctx, ResolveInfo $info) {
+                            $contextDb = $ctx['db'];
+                            $result = CategoryModel::findById($args['id'], $contextDb);
+                            return $result;
+                        }
+                    ],
+                    'getProducts' => [
+                        'type' => Type::listOf(Type::nonNull($productType)),
+                        'resolve' => static function ($rootValue, array $args, $ctx, ResolveInfo $info) {
+                            $contextDb = $ctx['db'];
+                            $result = ProductModel::findAll($contextDb);
+                            return $result;
+                        }
+                    ],
+                    'getProduct' => [
+                        'type' => $productType,
+                        'args' => [
+                            'id' => Type::nonNull(Type::string()),
+                        ],
+                        'resolve' => static function ($rootValue, array $args, $ctx, ResolveInfo $info) {
+                            $contextDb = $ctx['db'];
+                            $result = ProductModel::findById($args['id'], $contextDb);
+                            return $result;
+                        }
+                    ],
+                    'getAttributes' => [
+                        'type' => Type::listOf(Type::nonNull($attributeType)),
+                        'resolve' => static function ($rootValue, array $args, $ctx, ResolveInfo $info) {
+                            $contextDb = $ctx['db'];
+                            $result = AttributeModel::findAll($contextDb);
+                            return $result;
+                        }
+                    ],
+                    'getAttribute' => [
+                        'type' => $attributeType,
+                        'args' => [
+                            'id' => Type::nonNull(Type::string()),
+                        ],
+                        'resolve' => static function ($rootValue, array $args, $ctx, ResolveInfo $info) {
+                            $contextDb = $ctx['db'];
+                            $result = AttributeModel::findById($args['id'], $contextDb);
+                            return $result;
+                        }
+                    ],
+                    'getAttributeSets' => [
+                        'type' => Type::listOf(Type::nonNull($attributeSetType)),
+                        'resolve' => static function ($rootValue, array $args, $ctx, ResolveInfo $info) {
+                            $contextDb = $ctx['db'];
+                            $result = AttributeSetModel::findAll($contextDb);
+                            return $result;
+                        }
+                    ],
+                    'getAttributeSet' => [
+                        'type' => $attributeSetType,
+                        'args' => [
+                            'id' => Type::nonNull(Type::string()),
+                        ],
+                        'resolve' => static function ($rootValue, array $args, $ctx, ResolveInfo $info) {
+                            $contextDb = $ctx['db'];
+                            $result = AttributeSetModel::findById($args['id'], $contextDb);
+                            return $result;
+                        }
+                    ],
+                    'getAttributeSetItems' => [
+                        'type' => Type::listOf(Type::nonNull($attributeType)),
+                        'args' => [
+                            'id' => Type::nonNull(Type::string()),
+                        ],
+                        'resolve' => static function ($rootValue, array $args, $ctx, ResolveInfo $info) {
+                            $contextDb = $ctx['db'];
+                            $result = AttributeSetModel::findItemsBySetId($args['id'], $contextDb);
+                            return $result;
+                        }
+                    ],
+                    'getPrices' => [
+                        'type' => Type::listOf(Type::nonNull($priceType)),
+                        'resolve' => static function ($rootValue, array $args, $ctx, ResolveInfo $info) {
+                            $contextDb = $ctx['db'];
+                            $result = PriceModel::findAll($contextDb);
+                            return $result;
+                        }
+                    ],
+                    'getPrice' => [
+                        'type' => $priceType,
+                        'args' => [
+                            'id' => Type::nonNull(Type::string()),
+                        ],
+                    ]
                 ],
                 ]
             );
