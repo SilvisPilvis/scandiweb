@@ -1,0 +1,31 @@
+meta {
+  name: Create Price
+  type: graphql
+  seq: 9
+}
+
+post {
+  url: http://localhost:8000/graphql
+  body: graphql
+  auth: inherit
+}
+
+body:graphql {
+  mutation {
+    createPrice(
+      price: {
+        amount: 144.69,
+        currency: {
+          label: "USD",
+          symbol: "$"
+        }
+      }
+    ) {
+      amount
+      currency {
+        label
+        symbol
+      }
+    }
+  }
+}

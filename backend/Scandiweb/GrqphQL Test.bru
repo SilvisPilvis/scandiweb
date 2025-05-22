@@ -1,0 +1,18 @@
+meta {
+  name: GrqphQL Test
+  type: graphql
+  seq: 3
+}
+
+post {
+  url: http://localhost:8000/graphql
+  body: graphql
+  auth: inherit
+}
+
+body:graphql {
+  # mutation { sum(x: 15, y: 25) }
+  query {
+    echo(message: "Hello World")
+  }
+}
