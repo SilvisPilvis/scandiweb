@@ -39,6 +39,8 @@ class AttributeModel extends Model
         $result = $stmt->get_result();
         $attribute = $result->fetch_assoc();
         $stmt->close();
+        $attribute['displayValue'] = $attribute['display_value'];
+        unset($attribute['display_value']);
 
         return $attribute;
     }

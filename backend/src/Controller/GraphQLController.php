@@ -31,6 +31,11 @@ use App\Model\CategoryModel;
 use App\Model\AttributeSetModel;
 use App\Model\AttributeModel;
 use App\Model\PriceModel;
+use App\GraphQL\Type\ProductType;
+use App\GraphQL\Type\CategoryType;
+use App\GraphQL\Type\AttributeSetType;
+use App\GraphQL\Type\AttributeType;
+use App\GraphQL\Type\PriceType;
 
 /**
  * Class GraphQL
@@ -42,7 +47,7 @@ use App\Model\PriceModel;
  * @link     None
  */
 
-class GraphQL
+class GraphQLController
 {
     private \App\Database\Database $_db;
 
@@ -63,145 +68,6 @@ class GraphQL
         try {
             $contextValue = ['db' => $this->_db];
 
-            $currencyType = new ObjectType(
-                [
-                    'name' => 'Currency',
-                    'fields' => [
-                        'label' => Type::nonNull(Type::string()),
-                        'symbol' => Type::nonNull(Type::string()),
-                    ]
-                ]
-            );
-
-            $currencyInputType = new InputObjectType(
-                [
-                    'name' => 'CurrencyInput',
-                    'fields' => [
-                        'label' => Type::nonNull(Type::string()),
-                        'symbol' => Type::nonNull(Type::string()),
-                    ],
-                ]
-            );
-
-            $priceType = new ObjectType(
-                [
-                    'name' => 'Price',
-                    'fields' => [
-                        'amount' => Type::nonNull(Type::float()),
-                        'currency' => Type::nonNull($currencyType),
-                    ]
-                ]
-            );
-
-            $priceInputType = new InputObjectType(
-                [
-                    'name' => 'PriceInput',
-                    'fields' => [
-                        'amount' => Type::nonNull(Type::float()),
-                        'currency' => Type::nonNull($currencyInputType),
-                    ]
-                ]
-            );
-
-            $attributeType = new ObjectType(
-                [
-                    'name' => 'AttributeItem',
-                    'fields' => [
-                        'displayValue' => Type::nonNull(Type::string()),
-                        'value' => Type::nonNull(Type::string()),
-                        'id' => Type::nonNull(Type::string()),
-                    ]
-                ]
-            );
-
-            $attributeInputType = new InputObjectType(
-                [
-                    'name' => 'AttributeInput',
-                    'fields' => [
-                        'id' => Type::nonNull(Type::string()),
-                        'displayValue' => Type::nonNull(Type::string()),
-                        'value' => Type::nonNull(Type::string()),
-                    ]
-                ]
-            );
-
-            $attributeSetType = new ObjectType(
-                [
-                    'name' => 'AttributeSet',
-                    'fields' => [
-                        'id' => Type::nonNull(Type::string()),
-                        'items' => Type::nonNull(Type::listOf(Type::nonNull($attributeType))),
-                        'name' => Type::nonNull(Type::string()),
-                        'type' => Type::nonNull(Type::string()), // Assuming 'swatch' or 'text'
-                    ]
-                ]
-            );
-
-            $attributeSetInputType = new InputObjectType(
-                [
-                    'name' => 'AttributeSetInput',
-                    'fields' => [
-                        'id' => Type::nonNull(Type::string()),
-                        'items' => Type::nonNull(Type::listOf(Type::nonNull($attributeInputType))),
-                        'name' => Type::nonNull(Type::string()),
-                        'type' => Type::nonNull(Type::string()), // Assuming 'swatch' or 'text'
-                    ]
-                ]
-            );
-
-            $categoryType = new ObjectType(
-                [
-                    'name' => 'Category',
-                    'fields' => [
-                        'name' => Type::nonNull(Type::string()),
-                    ]
-                ]
-            );
-
-            $categoryInputType = new InputObjectType(
-                [
-                    'name' => 'CategoryInput',
-                    'fields' => [
-                        'name' => Type::nonNull(Type::string()),
-                    ],
-                ]
-            );
-
-            $productType = new ObjectType(
-                [
-                            'name' => 'Product',
-                            'fields' => [
-                                'id' => Type::nonNull(Type::string()),
-                                'name' => Type::nonNull(Type::string()),
-                                'inStock' => Type::nonNull(Type::boolean()),
-                                'gallery' => Type::nonNull(Type::listOf(Type::nonNull(Type::string()))),
-                                'description' => Type::nonNull(Type::string()),
-                                'category' => Type::nonNull($categoryType),
-                                'attributes' => Type::nonNull(Type::listOf(Type::nonNull($attributeSetType))),
-                                'prices' => Type::nonNull(Type::listOf(Type::nonNull($priceType))),
-                                'brand' => Type::nonNull(Type::string()),
-                            ],
-                ]
-            );
-
-            $productInputType = new InputObjectType(
-                [
-                'name' => 'ProductInput',
-                'fields' => [
-                    'id' => Type::string(), // Allow null for auto-generated ID
-                    'name' => Type::nonNull(Type::string()),
-                    'inStock' => Type::nonNull(Type::boolean()),
-                    'gallery' => Type::nonNull(Type::listOf(Type::nonNull(Type::string()))),
-                    'description' => Type::nonNull(Type::string()),
-                    // You'll need a way to handle category input - could be an ID or another input type
-                    'category' => Type::nonNull(Type::listOf(Type::nonNull($categoryInputType))), // Assuming category ID for simplicity
-                    'attributes' => Type::nonNull(Type::listOf(Type::nonNull($attributeSetInputType))),
-                    'prices' => Type::nonNull(Type::listOf(Type::nonNull($priceInputType))),
-                    'brand' => Type::nonNull(Type::string()),
-                ],
-                ]
-            );
-
             $queryType = new ObjectType(
                 [
                 'name' => 'Query',
@@ -214,16 +80,15 @@ class GraphQL
                         'resolve' => static fn ($rootValue, array $args): string => $rootValue['prefix'] . $args['message'],
                     ],
                     'getCategories' => [
-                        'type' => Type::listOf(Type::nonNull($categoryType)),
+                        'type' => Type::listOf(Type::nonNull(CategoryType::getType())),
                         'resolve' => static function ($rootValue, array $args, $ctx, ResolveInfo $info) {
                             $contextDb = $ctx['db'];
                             $result = CategoryModel::findAll($contextDb);
-
                             return $result;
                         }
                     ],
                     'getCategory' => [
-                        'type' => $categoryType,
+                        'type' => CategoryType::getType(),
                         'args' => [
                             'id' => Type::nonNull(Type::string()),
                         ],
@@ -234,7 +99,7 @@ class GraphQL
                         }
                     ],
                     'getProducts' => [
-                        'type' => Type::listOf(Type::nonNull($productType)),
+                        'type' => Type::listOf(Type::nonNull(ProductType::getType())),
                         'resolve' => static function ($rootValue, array $args, $ctx, ResolveInfo $info) {
                             $contextDb = $ctx['db'];
                             $result = ProductModel::findAll($contextDb);
@@ -242,7 +107,7 @@ class GraphQL
                         }
                     ],
                     'getProduct' => [
-                        'type' => $productType,
+                        'type' => ProductType::getType(),
                         'args' => [
                             'id' => Type::nonNull(Type::string()),
                         ],
@@ -253,7 +118,7 @@ class GraphQL
                         }
                     ],
                     'getAttributes' => [
-                        'type' => Type::listOf(Type::nonNull($attributeType)),
+                        'type' => Type::listOf(Type::nonNull(AttributeType::getType())),
                         'resolve' => static function ($rootValue, array $args, $ctx, ResolveInfo $info) {
                             $contextDb = $ctx['db'];
                             $result = AttributeModel::findAll($contextDb);
@@ -261,7 +126,7 @@ class GraphQL
                         }
                     ],
                     'getAttribute' => [
-                        'type' => $attributeType,
+                        'type' => AttributeType::getType(),
                         'args' => [
                             'id' => Type::nonNull(Type::string()),
                         ],
@@ -272,7 +137,7 @@ class GraphQL
                         }
                     ],
                     'getAttributeSets' => [
-                        'type' => Type::listOf(Type::nonNull($attributeSetType)),
+                        'type' => Type::listOf(Type::nonNull(AttributeSetType::getType())),
                         'resolve' => static function ($rootValue, array $args, $ctx, ResolveInfo $info) {
                             $contextDb = $ctx['db'];
                             $result = AttributeSetModel::findAll($contextDb);
@@ -280,7 +145,7 @@ class GraphQL
                         }
                     ],
                     'getAttributeSet' => [
-                        'type' => $attributeSetType,
+                        'type' => AttributeSetType::getType(),
                         'args' => [
                             'id' => Type::nonNull(Type::string()),
                         ],
@@ -291,7 +156,7 @@ class GraphQL
                         }
                     ],
                     'getAttributeSetItems' => [
-                        'type' => Type::listOf(Type::nonNull($attributeType)),
+                        'type' => Type::listOf(Type::nonNull(AttributeType::getType())),
                         'args' => [
                             'id' => Type::nonNull(Type::string()),
                         ],
@@ -302,7 +167,7 @@ class GraphQL
                         }
                     ],
                     'getPrices' => [
-                        'type' => Type::listOf(Type::nonNull($priceType)),
+                        'type' => Type::listOf(Type::nonNull(PriceType::getType())),
                         'resolve' => static function ($rootValue, array $args, $ctx, ResolveInfo $info) {
                             $contextDb = $ctx['db'];
                             $result = PriceModel::findAll($contextDb);
@@ -310,10 +175,15 @@ class GraphQL
                         }
                     ],
                     'getPrice' => [
-                        'type' => $priceType,
+                        'type' => PriceType::getType(),
                         'args' => [
                             'id' => Type::nonNull(Type::string()),
                         ],
+                        'resolve' => static function ($rootValue, array $args, $ctx, ResolveInfo $info) {
+                            $contextDb = $ctx['db'];
+                            $result = PriceModel::findById($args['id'], $contextDb);
+                            return $result;
+                        }
                     ]
                 ],
                 ]
@@ -332,10 +202,10 @@ class GraphQL
                         'resolve' => static fn ($calc, array $args): int => $args['x'] + $args['y'],
                     ],
                     'createProduct' => [
-                        'type' => $productType,
+                        'type' => ProductType::getType(),
                         'args' => [
                             'product' => [
-                                'type' => Type::nonNull($productInputType),
+                                'type' => Type::nonNull(ProductType::getInputType()),
                                 'description' => 'The product to create',
                             ],
                         ],
@@ -343,15 +213,14 @@ class GraphQL
                             $productData = $args['product'];
                             $contextDb = $ctx['db'];
                             $result = ProductModel::create($productData, $contextDb);
-
                             return $result;
                         }
                     ],
                     'createCategory' => [
-                        'type' => $categoryType,
+                        'type' => CategoryType::getType(),
                         'args' => [
                             'category' => [
-                                'type' => Type::nonNull($categoryInputType),
+                                'type' => Type::nonNull(CategoryType::getInputType()),
                                 'description' => 'The category to create',
                             ],
                         ],
@@ -359,15 +228,14 @@ class GraphQL
                             $categoryData = $args['category'];
                             $contextDb = $ctx['db'];
                             $result = CategoryModel::create($categoryData, $contextDb);
-
                             return $result;
                         }
                     ],
                     'createAttributeSet' => [
-                        'type' => $attributeSetType,
+                        'type' => AttributeSetType::getType(),
                         'args' => [
                             'attributeSet' => [
-                                'type' => Type::nonNull($attributeSetInputType),
+                                'type' => Type::nonNull(AttributeSetType::getInputType()),
                                 'description' => 'The attribute set to create',
                             ]
                         ],
@@ -375,15 +243,14 @@ class GraphQL
                             $attributeSetData = $args['attributeSet'];
                             $contextDb = $ctx['db'];
                             $result = AttributeSetModel::create($attributeSetData, $contextDb);
-
                             return $result;
                         }
                     ],
                     'createAttribute' => [
-                        'type' => $attributeType,
+                        'type' => AttributeType::getType(),
                         'args' => [
                             'attribute' => [
-                                'type' => Type::nonNull($attributeInputType),
+                                'type' => Type::nonNull(AttributeType::getInputType()),
                                 'description' => 'The attribute to create',
                             ]
                         ],
@@ -391,7 +258,6 @@ class GraphQL
                             $attributeData = $args['attribute'];
                             $contextDb = $ctx['db'];
                             $result = AttributeModel::create($attributeData, $contextDb);
-
                             return $result;
                         }
                     ],
