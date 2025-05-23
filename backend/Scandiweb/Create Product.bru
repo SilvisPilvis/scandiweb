@@ -13,8 +13,39 @@ post {
 body:graphql {
   # mutation {
   #   createProduct(
-      
+  
   #   )
+  # }
+  
+  # query {
+  #   getProducts {
+  #     id
+  #     name
+  #     inStock
+  #     gallery
+  #     description
+  #     category {
+  #       name
+  #     }
+  #     attributes {
+  #       id
+  #       items {
+  #         id
+  #         displayValue
+  #         value
+  #       }
+  #       name
+  #       type
+  #     }
+  #     prices {
+  #       amount
+  #       currency {
+  #         label
+  #         symbol
+  #       }
+  #     }
+  #     brand
+  #   }
   # }
   
   query {
@@ -24,19 +55,6 @@ body:graphql {
       inStock
       gallery
       description
-      category {
-        name
-      }
-      attributes {
-        id
-        items {
-          id
-          # displayValue
-          value
-        }
-        name
-        type
-      }
       prices {
         amount
         currency {
@@ -45,6 +63,10 @@ body:graphql {
         }
       }
       brand
+      category {
+        name
+      }
     }
   }
+  
 }
