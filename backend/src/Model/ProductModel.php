@@ -16,8 +16,10 @@
 namespace App\Model;
 
 use App\Database\Database;
-use App\Model\AtributeModel;
-use App\Model\AtributeSetModel;
+use App\Model\AttributeModel;
+use App\Model\AttributeSetModel;
+use App\Model\CategoryModel;
+use App\Model\PriceModel;
 use Exception;
 use App\Packages\Cuid\Cuid;
 
@@ -61,16 +63,31 @@ class ProductModel extends Model
     // findAll would also need to fetch related data for full product objects
     public static function findAll($conn)
     {
-        $productsData = [];
-        $result = $conn->query('SELECT id FROM products'); // Get all product IDs
-        while ($row = $result->fetch_assoc()) {
-            $product = self::findById($row['id'], $conn); // Reuse findById
-            if ($product) {
-                $productsData[] = $product;
+        $products = [];
+        $rows = $conn->query('SELECT id FROM products'); // Get all product IDs
+        
+        if ($rows === false) { // Check if the query failed
+            $error = $conn->error; // Or however your $conn object exposes errors
+            error_log("Database error in ProductModel::findAll: " . $error);
+            throw new \RuntimeException("Database error fetching product IDs: " . $error);
+        }
+
+        if (!is_array($rows)) {
+            // Extra check if it might return something else weird
+            error_log("Unexpected return type from DB query in ProductModel::findAll");
+            throw new \RuntimeException("Unexpected data format from database query.");
+        }
+        
+        foreach ($rows as $row) {
+            if (isset($row['id'])) {
+                $product = self::findById($row['id'], $conn);
+                if ($product) {
+                    $products[] = $product;
+                }
             }
         }
-        $result->close();
-        return $productsData;
+        
+        return $products;
     }
 
     public static function findById($id, $conn)
@@ -132,8 +149,8 @@ class ProductModel extends Model
         $asStmt->close();
 
         // Ensure inStock is boolean for GraphQL
-        $productData['inStock'] = (bool)$productData['inStock'];
-
+        $productData['inStock'] = (bool)$productData['in_stock'];
+        unset($productData['in_stock']); // Remove the old field name
 
         return $productData; // Returns an associative array
     }
@@ -230,8 +247,15 @@ class ProductModel extends Model
 
     public static function update($id, $data, $conn)
     {
-        $result = $conn->prepare("UPDATE products SET name = ?, inStock = ?, gallery = ?, description = ?, category = ?, attributes = ?, prices = ?, brand = ? WHERE id = ?");
-        $result->bind_param('sssssssi', $data['name'], $data['inStock'], $data['gallery'], $data['description'], $data['category'], $data['attributes'], $data['prices'], $data['brand'], $id);
+        $result = $conn->prepare("UPDATE products SET name = ?, in_stock = ?, description = ?, category_id = ?, brand = ? WHERE id = ?");
+        $result->bind_param('sissss', 
+            $data['name'], 
+            $data['inStock'] ? 1 : 0, 
+            $data['description'], 
+            $data['category'], 
+            $data['brand'], 
+            $id
+        );
         $result->execute();
         $result->close();
         return $result;

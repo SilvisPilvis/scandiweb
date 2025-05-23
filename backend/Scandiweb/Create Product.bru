@@ -11,9 +11,40 @@ post {
 }
 
 body:graphql {
-  mutation {
-    createProduct(
+  # mutation {
+  #   createProduct(
       
-    )
+  #   )
+  # }
+  
+  query {
+    getProducts {
+      id
+      name
+      inStock
+      gallery
+      description
+      category {
+        name
+      }
+      attributes {
+        id
+        items {
+          id
+          # displayValue
+          value
+        }
+        name
+        type
+      }
+      prices {
+        amount
+        currency {
+          label
+          symbol
+        }
+      }
+      brand
+    }
   }
 }

@@ -6,26 +6,63 @@ class PriceModel extends Model
 {
     public static function findAll($conn)
     {
-        $result = $conn->query('SELECT * FROM prices');
-        return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+        $prices = [];
+        $rows = $conn->query('SELECT * FROM prices');
+
+        if ($rows === false) {
+            $error = $conn->error;
+            error_log("Database error in PriceModel::findAll: " . $error);
+            throw new \RuntimeException("Database error fetching price IDs: " . $error);
+        }
+
+        if (!is_array($rows)) {
+            error_log("Unexpected return type from DB query in PriceModel::findAll");
+            throw new \RuntimeException("Unexpected data format from database query.");
+        }
+
+        foreach ($rows as $row) {
+            $prices[] = [
+                'amount' => (float)$row['amount'],
+                'currency' => [
+                    'label' => $row['currency'],
+                    'symbol' => $row['currency'] === 'USD' ? '$' : $row['currency']
+                ]
+            ];
+        }
+        return $prices;
     }
 
     public static function findById($id, $conn)
     {
-        $result = $conn->prepare("SELECT * FROM prices WHERE id = ?");
-        $result->bind_param('i', $id);
-        $result->get_result()->fetch_assoc();
-        $result->close();
-        return $result;
+        $stmt = $conn->prepare("SELECT * FROM prices WHERE id = ?");
+        $stmt->bind_param('i', $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $price = $result->fetch_assoc();
+        $stmt->close();
+
+        return $price;
     }
 
     public static function findByProductId($id, $conn)
     {
-        $result = $conn->prepare("SELECT * FROM prices WHERE product_id = ?");
-        $result->bind_param('i', $id);
-        $result->get_result()->fetch_assoc();
-        $result->close();
-        return $result;
+        $stmt = $conn->prepare("SELECT * FROM prices WHERE product_id = ?");
+        $stmt->bind_param('s', $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        $prices = [];
+        while ($row = $result->fetch_assoc()) {
+            $prices[] = [
+                'amount' => (float)$row['amount'],
+                'currency' => [
+                    'label' => $row['currency'],
+                    'symbol' => $row['currency'] === 'USD' ? '$' : $row['currency']
+                ]
+            ];
+        }
+        $stmt->close();
+        return $prices;
     }
 
     /**
@@ -45,15 +82,9 @@ class PriceModel extends Model
         $result->close();
 
         if ($insert_id) {
-            $result_stmt = $conn->prepare("SELECT * FROM prices WHERE id = ?");
-            $result_stmt->bind_param('i', $insert_id);
-            $result_stmt->execute();
-            $record = $result_stmt->get_result()->fetch_assoc();
-            $result_stmt->close();
-            return $record;
+            return self::findById($insert_id, $conn);
         }
-
-        return null; // Or handle error, L bozo if insert failed
+        return null;
     }
 
     public static function update($id, $data, $conn)

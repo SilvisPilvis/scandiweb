@@ -64,6 +64,10 @@ class Database
             // Enable mysqli exceptions
             mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
+            if (!$this->_host || !$this->_user || !$this->_password || !$this->_db_name) {
+                throw new RuntimeException("Database configuration is not set");
+            }
+
             try {
                 $this->_conn = new mysqli(
                     $this->_host,
@@ -171,15 +175,17 @@ class Database
 
         if (!$result) {
             // For non-SELECT queries, get_result() returns false.
-            // PDO fetchAll would return empty array.
             $stmt->close();
-            $this->error = $conn->error;
-            error_log($conn->error);
-            return $this->error;
+            if ($conn->error) {
+                $this->error = $conn->error;
+                error_log($conn->error);
+                throw new RuntimeException($conn->error);
+            }
+            // If there's no error but no result (e.g., for INSERT/UPDATE queries)
+            return [];
         }
 
         $data = $result->fetch_all(MYSQLI_ASSOC);
-        // $data = $result->fetch_assoc();
         $stmt->close();
         return $data;
     }

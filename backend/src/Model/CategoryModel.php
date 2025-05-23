@@ -18,18 +18,21 @@ class CategoryModel extends Model
         $categories = [];
         $rows = $conn->query('SELECT id FROM categories');
 
-        if ($rows === false) { // Check if the query failed
+        if ($rows === false) {
+            // Check if the query failed
             $error = $conn->error; // Or however your $conn object exposes errors
             error_log("Database error in CategoryModel::findAll: " . $error);
             throw new \RuntimeException("Database error fetching category IDs: " . $error);
         }
 
-        if (!is_array($rows)) { // Extra check if it might return something else weird
+        if (!is_array($rows)) {
+            // Extra check if it might return something else weird
             error_log("Unexpected return type from DB query in CategoryModel::findAll");
             throw new \RuntimeException("Unexpected data format from database query.");
         }
 
-        foreach ($rows as $row) { // Loop through the array of rows
+        foreach ($rows as $row) {
+            // Loop through the array of rows
             if (isset($row['id'])) {
                 $category = self::findById($row['id'], $conn);
                 if ($category) {
@@ -37,7 +40,8 @@ class CategoryModel extends Model
                 }
             }
         }
-        // No $result->close() needed if $conn->query() already fetched everything
+
+        // No $result->close() needed because $conn->query() already fetched everything
         return $categories;
     }
 
