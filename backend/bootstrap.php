@@ -20,7 +20,7 @@ require __DIR__ . '/vendor/autoload.php';
 // --- Configuration Loading ---
 use Dotenv\Dotenv;
 use App\Database\Database;
-use App\Controller\GraphQL;
+use App\Controller\GraphQLController;
 
 // Assumes your .env file is in the project root
 $dotenv = Dotenv::createImmutable(__DIR__);
@@ -36,7 +36,7 @@ if ($db->connect_error) {
     die("Connection failed: " . $db->connect_error);
 }
 
-$graphql = new GraphQL($db);
+$graphql = new GraphQLController($db);
 
 // Return necessary initialized objects or values
 return [

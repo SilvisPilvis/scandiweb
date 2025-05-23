@@ -3,8 +3,6 @@
 // Define the application root directory
 define('APP_ROOT', dirname(__DIR__));
 
-use App\Model\DataLoaderModel;
-
 // Load the bootstrap file to initialize the application
 // This require call executes bootstrap.php and gets its return value
 // $bootstrap = require APP_ROOT . '/bootstrap.php';
@@ -29,10 +27,6 @@ $dispatcher = FastRoute\simpleDispatcher(
                     function () {
                         return 'Hello World!';
                     }
-                );
-                $r->get(
-                    '/products',
-                    DataLoaderModel::class . '::getProduct'
                 );
             }
         );
