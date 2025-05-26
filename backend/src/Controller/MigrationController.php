@@ -125,7 +125,7 @@ class MigrationController
         ];
 
         foreach ($size_attributes as $attr) {
-            $db->query("INSERT INTO attributes (id, display_value, value) VALUES (?, ?, ?)", $attr);
+            $db->query("INSERT INTO attributes (id, value, display_value) VALUES (?, ?, ?)", $attr);
             $db->query("INSERT INTO attribute_set_items (attribute_set_id, attribute_id) VALUES ('Size', ?)", [$attr[0]]);
         }
 
