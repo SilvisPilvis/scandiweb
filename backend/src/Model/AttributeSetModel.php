@@ -57,6 +57,8 @@ class AttributeSetModel extends Model
         
         $items = [];
         while ($row = $result->fetch_assoc()) {
+            $row['displayValue'] = $row['display_value'];
+            unset($row['display_value']);
             $items[] = $row;
         }
         $stmt->close();

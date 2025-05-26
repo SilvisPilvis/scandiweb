@@ -1,0 +1,30 @@
+import parse from 'html-react-parser'
+
+const ProductCard = ({id, name, inStock, gallery, description, prices, brand}: {id: string, name: string, inStock: boolean, gallery: string[], description: string, prices: any[], brand: string}) => {
+  return (
+    <>
+    {inStock ? (
+    <div className="flex flex-col items-start justify-center gap-4 max-w-sm">
+        <img src={gallery[0]} alt={name} className="min-w-72 max-w-72 object-contain rounded-lg aspect-square" />
+        <h3 className="text-lg font-bold">{name}</h3>
+        {/* <div className="text-sm text-white">{parse(description)}</div>  */}
+        <p className="text-lg font-bold">{prices[0].currency.symbol}{prices[0].amount}</p>
+    </div>
+    ) : (
+        <div className="flex flex-col items-start justify-center gap-4 max-w-sm">
+            <div className="relative">
+                <img src={gallery[0]} alt={name} className="min-w-72 max-w-72 object-contain rounded-lg aspect-square opacity-50" />
+                <p className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-2xl font-bold text-red-700 w-full text-center">
+                    OUT OF STOCK
+                </p>
+            </div>
+            <h3 className="text-lg font-bold">{name}</h3>
+            {/* <div className="text-sm text-white">{parse(description)}</div>  */}
+            <p className="text-lg font-bold">{prices[0].currency.symbol}{prices[0].amount}</p>
+        </div>
+    )}
+    </>
+  )
+}
+
+export default ProductCard

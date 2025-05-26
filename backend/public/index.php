@@ -1,5 +1,16 @@
 <?php
 
+// Add CORS headers
+header('Access-Control-Allow-Origin: http://localhost:5173'); // Replace with your frontend URL if different
+header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type');
+
+// Handle preflight OPTIONS request
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    header('HTTP/1.1 200 OK');
+    exit();
+}
+
 // Define the application root directory
 define('APP_ROOT', dirname(__DIR__));
 
