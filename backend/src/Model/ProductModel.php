@@ -155,6 +155,37 @@ class ProductModel extends Model
         return $productData; // Returns an associative array
     }
 
+    public static function findByCategory($category, $conn)
+    {
+        $products = [];
+        // First, get all product IDs belonging to the specified category
+        $stmt = $conn->prepare("SELECT p.id
+            FROM products p
+            JOIN categories c ON p.category_id = c.id
+            WHERE c.name = ?"
+        );
+        $stmt->bind_param('s', $category);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result === false) {
+            error_log("Database error in ProductModel::findByCategory (fetching IDs): " . $conn->error);
+            throw new \RuntimeException("Database error fetching product IDs by category.");
+        }
+
+        while ($row = $result->fetch_assoc()) {
+            if (isset($row['id'])) {
+                // For each product ID, use findById to get the full product details
+                $product = self::findById($row['id'], $conn);
+                if ($product) {
+                    $products[] = $product;
+                }
+            }
+        }
+        $stmt->close();
+        return $products;
+    }
+
     public static function create($data, $conn)
     {
         // Generate ID if not provided (using ramsey/uuid as an example)

@@ -203,7 +203,13 @@ export const Route = createRootRoute({
         <>
             <div className="p-2 flex gap-2">
                 <Link to="/" className="[&.active]:font-bold" data-testid='category-link'>
-                    Home
+                    All
+                </Link>{' '}
+                <Link to="/clothes" className="[&.active]:font-bold" data-testid='category-link'>
+                    Clothes
+                </Link>{' '}
+                <Link to="/tech" className="[&.active]:font-bold" data-testid='category-link'>
+                    Tech
                 </Link>{' '}
                 <Cart />
             </div>

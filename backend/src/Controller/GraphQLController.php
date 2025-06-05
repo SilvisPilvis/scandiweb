@@ -106,6 +106,17 @@ class GraphQLController
                             return $result;
                         }
                     ],
+                    'getProductsByCategory' => [
+                        'type' => Type::listOf(Type::nonNull(ProductType::getType())),
+                        'args' => [
+                            'category' => Type::nonNull(Type::string()),
+                        ],
+                        'resolve' => static function ($rootValue, array $args, $ctx, ResolveInfo $info) {
+                            $contextDb = $ctx['db'];
+                            $result = ProductModel::findByCategory($args['category'], $contextDb);
+                            return $result;
+                        }
+                    ],
                     'getProduct' => [
                         'type' => ProductType::getType(),
                         'args' => [
