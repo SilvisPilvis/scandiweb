@@ -12,6 +12,7 @@
         "html-react-parser": "^5.2.5",
         "react": "^19.1.0",
         "react-dom": "^19.1.0",
+        "react-use-cart": "^1.14.0",
         "tailwindcss": "^4.1.7",
       },
       "devDependencies": {
@@ -678,6 +679,8 @@
     "react-property": ["react-property@2.0.2", "", {}, "sha512-+PbtI3VuDV0l6CleQMsx2gtK0JZbZKbpdu5ynr+lbsuvtmgbNcS3VM0tuY2QjFNOcWxvXeHjDpy42RO+4U2rug=="],
 
     "react-refresh": ["react-refresh@0.17.0", "", {}, "sha512-z6F7K9bV85EfseRCp2bzrpyQ0Gkw1uLoCel9XBVWPg/TjRj94SkJzUTGfOa4bs7iJvBWtQG0Wq7wnI0syw3EBQ=="],
+
+    "react-use-cart": ["react-use-cart@1.14.0", "", { "peerDependencies": { "react": ">=16" } }, "sha512-Qd3booG4wFAB04zrVWyiV/nxB+pv/7l7zNJO7isquE1LKpNuGpOpCcmCVCut5YPDilEMemx33+/103anefcVWA=="],
 
     "readdirp": ["readdirp@3.6.0", "", { "dependencies": { "picomatch": "^2.2.1" } }, "sha512-hOS089on8RduqdbhvQ5Z37A0ESjsqz6qnRcffsMU3495FuTdqSm+7bhJ29JvIOsBDEEnan5DPu9t3To9VRlMzA=="],
 
