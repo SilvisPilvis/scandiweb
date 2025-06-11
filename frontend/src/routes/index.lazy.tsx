@@ -56,10 +56,10 @@ function Index() {
         queryFn: fetchProductsCards
     })
 
-    const { data: categories, isLoading: categoriesLoading, error: categoriesError } = useQuery({
-        queryKey: ['categories'],
-        queryFn: fetchCategories
-    })
+    // const { data: categories, isLoading: categoriesLoading, error: categoriesError } = useQuery({
+    //     queryKey: ['categories'],
+    //     queryFn: fetchCategories
+    // })
 
     const { addItem } = useCart();
 
@@ -76,10 +76,14 @@ function Index() {
                                 to="/product/$productId"
                                 key={product.id}
                                 params={{ productId: product.id }}
+                                data-testid={`product-${product.name.toLowerCase().replace(/ /g, '-')}`}
                             >
                                 <ProductCard {...product} />
                             </Link>
-                            <button onClick={() => addItem({id: product.id, name: product.name, price: product.prices[0].amount, image: product.gallery[0]})}><CartIcon /></button>
+                            <button
+                            onClick={() => addItem({id: product.id, name: product.name, price: product.prices[0].amount, image: product.gallery[0]})}
+                            data-testid='cart-btn'
+                            ><CartIcon /></button>
                             {/* <CartIcon onClick={() => addItem(product)} /> */}
                         </>
                     ))
