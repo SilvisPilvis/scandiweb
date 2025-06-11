@@ -65,15 +65,7 @@ function Index() {
 
     return (
         <>
-            <nav className="flex flex-row gap-4">
-                {categoriesLoading && <div>Loading...</div>}
-                {categoriesError && <div>Error: {categoriesError.message}</div>}
-                {categories &&
-                    categories.data.getCategories.map((category: any) => (
-                        <a key={category.name} data-testid='category-link' href={`#${category.name}`} onClick={() => setSelectedCategory(category.name)}>{category.name}</a>
-                    ))
-                }
-            </nav>
+            <h1 className="text-3xl font-bold text-center my-4">All Products</h1>
             <main className="flex flex-row gap-4 flex-wrap justify-center">
                 {isLoading && <div>Loading...</div>}
                 {error && <div>Error: {error.message}</div>}

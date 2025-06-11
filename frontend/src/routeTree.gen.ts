@@ -17,9 +17,23 @@ import { Route as ProductProductIdImport } from './routes/product/$productId'
 
 // Create Virtual Routes
 
+const TechLazyImport = createFileRoute('/tech')()
+const ClothesLazyImport = createFileRoute('/clothes')()
 const IndexLazyImport = createFileRoute('/')()
 
 // Create/Update Routes
+
+const TechLazyRoute = TechLazyImport.update({
+  id: '/tech',
+  path: '/tech',
+  getParentRoute: () => rootRoute,
+} as any).lazy(() => import('./routes/tech.lazy').then((d) => d.Route))
+
+const ClothesLazyRoute = ClothesLazyImport.update({
+  id: '/clothes',
+  path: '/clothes',
+  getParentRoute: () => rootRoute,
+} as any).lazy(() => import('./routes/clothes.lazy').then((d) => d.Route))
 
 const IndexLazyRoute = IndexLazyImport.update({
   id: '/',
@@ -44,6 +58,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexLazyImport
       parentRoute: typeof rootRoute
     }
+    '/clothes': {
+      id: '/clothes'
+      path: '/clothes'
+      fullPath: '/clothes'
+      preLoaderRoute: typeof ClothesLazyImport
+      parentRoute: typeof rootRoute
+    }
+    '/tech': {
+      id: '/tech'
+      path: '/tech'
+      fullPath: '/tech'
+      preLoaderRoute: typeof TechLazyImport
+      parentRoute: typeof rootRoute
+    }
     '/product/$productId': {
       id: '/product/$productId'
       path: '/product/$productId'
@@ -58,36 +86,46 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexLazyRoute
+  '/clothes': typeof ClothesLazyRoute
+  '/tech': typeof TechLazyRoute
   '/product/$productId': typeof ProductProductIdRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
+  '/clothes': typeof ClothesLazyRoute
+  '/tech': typeof TechLazyRoute
   '/product/$productId': typeof ProductProductIdRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexLazyRoute
+  '/clothes': typeof ClothesLazyRoute
+  '/tech': typeof TechLazyRoute
   '/product/$productId': typeof ProductProductIdRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/product/$productId'
+  fullPaths: '/' | '/clothes' | '/tech' | '/product/$productId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/product/$productId'
-  id: '__root__' | '/' | '/product/$productId'
+  to: '/' | '/clothes' | '/tech' | '/product/$productId'
+  id: '__root__' | '/' | '/clothes' | '/tech' | '/product/$productId'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexLazyRoute: typeof IndexLazyRoute
+  ClothesLazyRoute: typeof ClothesLazyRoute
+  TechLazyRoute: typeof TechLazyRoute
   ProductProductIdRoute: typeof ProductProductIdRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexLazyRoute: IndexLazyRoute,
+  ClothesLazyRoute: ClothesLazyRoute,
+  TechLazyRoute: TechLazyRoute,
   ProductProductIdRoute: ProductProductIdRoute,
 }
 
@@ -102,11 +140,19 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/clothes",
+        "/tech",
         "/product/$productId"
       ]
     },
     "/": {
       "filePath": "index.lazy.tsx"
+    },
+    "/clothes": {
+      "filePath": "clothes.lazy.tsx"
+    },
+    "/tech": {
+      "filePath": "tech.lazy.tsx"
     },
     "/product/$productId": {
       "filePath": "product/$productId.tsx"
