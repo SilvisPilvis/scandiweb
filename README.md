@@ -2,8 +2,8 @@
 
 # Add galery
 
-* [ ] The cart overlay button shall be included in the header and visible on all pages
-* [ ] The button element must have attribute data-testid='cart-btn'
+* [x] The cart overlay button shall be included in the header and visible on all pages
+* [x] The button element must have attribute data-testid='cart-btn'
 * [ ] Item count bubble Shall be visible on the cart overlay button only if there are products in the cart
 * [ ] If only one item is in the cart, it should be shown as 1 Item . If 2 or more plural forms should be used: X Items
 * [ ] Placeorder It has to perform respective GraphQL mutation that as a result will create a new order in DB
@@ -20,10 +20,10 @@
 * [x] Button to increase quantity must have attribute data-testid='cart-item-amount-increase'
 * [x] Cart item amount indicator must have attribute data-testid='cart-item-amount'
 * [x] Cart total element must have attribute data-testid='cart-total'
-* [ ] Product card must have attribute data-testid='product-${product name in kebab case}'
+* [x] Product card must have attribute data-testid='product-${product name in kebab case}'
 * [ ] Attribute container must have attribute data-testid='product-attribute-${attribute in kebab case}'
 * [ ] Gallery must have attribute data-testid='product-gallery'
-* [ ] Product description must have attribute data-testid='product-description'
+* [x] Product description must have attribute data-testid='product-description'
 * [x] Add to cart button must have attribute data-testid='add-to-cart'
 
 # PSR-1
