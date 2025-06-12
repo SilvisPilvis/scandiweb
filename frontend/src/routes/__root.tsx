@@ -67,20 +67,20 @@ function Cart() {
 
     if (isEmpty && !isOpen)
         return (
-            <>
+            <div data-testid='cart-btn'>
                 0 x <CartIcon />
-            </>
+            </div>
         );
 
     if (!isEmpty && !isOpen)
         return (
-            <div onClick={() => setIsOpen(true)}>
+            <div onClick={() => setIsOpen(true)} data-testid='cart-btn'>
                 {totalUniqueItems} x <CartIcon />
             </div>
         );
 
     return (
-        <div
+        <div data-testid='cart-btn'
             className="cart-container border border-dashed border-gray-300 p-5 w-[400px] my-5 mx-auto rounded-lg"
         // Tailwind doesn't have a direct "dotted" border style for utility classes,
         // so using "dashed" which is visually similar to the image, or you can
