@@ -74,10 +74,14 @@ function ClothesIndex() {
                         <Link
                             to="/product/$productId"
                             params={{ productId: product.id }}
+                            data-testid={`product-${product.name.toLowerCase().replace(/ /g, '-')}`}
                         >
                             <ProductCard {...product} />
                         </Link>
-                        <button onClick={() => addItem({id: product.id, name: product.name, price: product.prices[0].amount, image: product.gallery[0]})}><CartIcon /></button>
+                        <button
+                        onClick={() => addItem({id: product.id, name: product.name, price: product.prices[0].amount, image: product.gallery[0]})}
+                        data-testid='cart-btn'
+                        ><CartIcon /></button>
                     </div>
                 ))}
             </main>

@@ -185,7 +185,7 @@ function Cart() {
 
             <div className="cart-summary flex justify-between items-center border-t border-dashed border-gray-300 pt-3.5 mt-5">
                 <span className="text-xl font-bold">Total</span>
-                <span className="text-xl font-bold">${totalPrice.toFixed(2)}</span>
+                <span className="text-xl font-bold" data-testid='cart-total'>${totalPrice.toFixed(2)}</span>
             </div>
 
             <button
@@ -202,13 +202,25 @@ export const Route = createRootRoute({
     component: () => (
         <>
             <div className="p-2 flex gap-2">
-                <Link to="/" className="[&.active]:font-bold" data-testid='category-link'>
+                <Link
+                    to="/"
+                    activeProps={{ 'data-testid': 'active-category-link' , 'className': 'font-bold'}}
+                    inactiveProps={{ 'data-testid': 'category-link' }}
+                >
                     All
                 </Link>{' '}
-                <Link to="/clothes" className="[&.active]:font-bold" data-testid='category-link'>
+                <Link
+                    to="/clothes"
+                    activeProps={{ 'data-testid': 'active-category-link' , 'className': 'font-bold'}}
+                    inactiveProps={{ 'data-testid': 'category-link' }}
+                >
                     Clothes
                 </Link>{' '}
-                <Link to="/tech" className="[&.active]:font-bold" data-testid='category-link'>
+                <Link
+                    to="/tech"
+                    activeProps={{ 'data-testid': 'active-category-link' , 'className': 'font-bold'}}
+                    inactiveProps={{ 'data-testid': 'category-link' }}
+                >
                     Tech
                 </Link>{' '}
                 <Cart />
