@@ -2,15 +2,15 @@
 
 # Add galery
 
-* [ ] The cart overlay button shall be included in the header and visible on all pages
-* [ ] The button element must have attribute data-testid='cart-btn'
-* [ ] Item count bubble Shall be visible on the cart overlay button only if there are products in the cart
-* [ ] If only one item is in the cart, it should be shown as 1 Item . If 2 or more plural forms should be used: X Items
-* [ ] Placeorder It has to perform respective GraphQL mutation that as a result will create a new order in DB
-* [ ] Once an order is placed, the cart should be emptied
-* [ ] If a cart is empty the button shall be greyed out and disabled
-* [ ] When the cart overlay is open the whole page except the header shall be greyed out. Refer to designs for a visual example
-* [ ] The cart doesn’t need to be saved and doesn’t need to be persistent, it should only be persistent through a single-user session at a minimum. This means saving it in the frontend states and local storage is enough
+* [x] The cart overlay button shall be included in the header and visible on all pages
+* [x] The button element must have attribute data-testid='cart-btn'
+* [x] Item count bubble Shall be visible on the cart overlay button only if there are products in the cart
+* [x] If only one item is in the cart, it should be shown as 1 Item . If 2 or more plural forms should be used: X Items
+* [ ] Placeorder has to perform respective GraphQL mutation that as a result will create a new order in DB
+* [x] Once an order is placed, the cart should be emptied
+* [x] If a cart is empty the button shall be greyed out and disabled
+* [x] When the cart overlay is open the whole page except the header shall be greyed out. Refer to designs for a visual example
+* [x] The cart doesn’t need to be saved and doesn’t need to be persistent, it should only be persistent through a single-user session at a minimum. This means saving it in the frontend states and local storage is enough
 * [x] Category link must have attribute data-testid='category-link'
 * [x] Active category link must have attribute data-testid='active-category-link'
 * [ ] Container of the cart item attribute must have attribute data-testid='cart-item-attribute-${attribute name in kebab case}'
@@ -20,10 +20,10 @@
 * [x] Button to increase quantity must have attribute data-testid='cart-item-amount-increase'
 * [x] Cart item amount indicator must have attribute data-testid='cart-item-amount'
 * [x] Cart total element must have attribute data-testid='cart-total'
-* [ ] Product card must have attribute data-testid='product-${product name in kebab case}'
-* [ ] Attribute container must have attribute data-testid='product-attribute-${attribute in kebab case}'
-* [ ] Gallery must have attribute data-testid='product-gallery'
-* [ ] Product description must have attribute data-testid='product-description'
+* [x] Product card must have attribute data-testid='product-${product name in kebab case}'
+* [x] Attribute container must have attribute data-testid='product-attribute-${attribute in kebab case}'
+* [x] Gallery must have attribute data-testid='product-gallery'
+* [x] Product description must have attribute data-testid='product-description'
 * [x] Add to cart button must have attribute data-testid='add-to-cart'
 
 # PSR-1

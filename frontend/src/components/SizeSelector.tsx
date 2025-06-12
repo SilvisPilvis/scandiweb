@@ -9,7 +9,6 @@ const SizeSelector = ({sizes}: {sizes: string[]}) => {
 
   return (
     <div>
-      <h2>SIZE:</h2>
       <div style={{ display: 'flex', gap: '10px' }}>
         {sizes.map((size) => (
           <button
