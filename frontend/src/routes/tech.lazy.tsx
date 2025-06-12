@@ -80,7 +80,7 @@ function TechIndex() {
                         </Link>
                         <button
                         onClick={() => addItem({id: product.id, name: product.name, price: product.prices[0].amount, image: product.gallery[0]})}
-                        data-testid='cart-btn'
+                        data-testid='add-to-cart'
                         ><CartIcon /></button>
                     </div>
                 ))}
