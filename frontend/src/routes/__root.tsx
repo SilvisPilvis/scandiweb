@@ -3,55 +3,8 @@ import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import { useCart } from 'react-use-cart'
 import CartIcon from '../icons/CartIcon'
 import { useState } from 'react'
-
-// function Cart() {
-//     const {
-//       isEmpty,
-//       totalUniqueItems,
-//       items,
-//       updateItemQuantity,
-//       removeItem,
-//     } = useCart();
-//
-//     const [isOpen, setIsOpen] = useState(false);
-//
-//     if (isEmpty && !isOpen) return (
-//         <>
-//         0 x <CartIcon />;
-//         </>
-//     )
-//
-//     if (!isEmpty && !isOpen) return (
-//         <div onClick={() => setIsOpen(true)}>
-//             {totalUniqueItems} x <CartIcon />
-//         </div>
-//     )
-//
-//     return (
-//       <>
-//         <h1>Cart ({totalUniqueItems})</h1>
-//
-//         <ul>
-//           {items.map((item) => (
-//             <li key={item.id}>
-//               {item.quantity} x {item.name} &mdash;
-//               <button
-//                 onClick={() => updateItemQuantity(item.id, (item.quantity ?? 0) - 1)}
-//               >
-//                 -
-//               </button>
-//               <button
-//                 onClick={() => updateItemQuantity(item.id, (item.quantity ?? 0) + 1)}
-//               >
-//                 +
-//               </button>
-//               <button onClick={() => removeItem(item.id)}>&times;</button>
-//             </li>
-//           ))}
-//         </ul>
-//       </>
-//     );
-// }
+// import SizeSelector from '../components/SizeSelector'
+import CartAttributeSelector from '../components/CartAttributeSelector'
 
 function PlaceOrder() {
     alert("Order placed");
@@ -71,7 +24,7 @@ function Cart() {
 
     if (isEmpty && !isOpen)
         return (
-            <div data-testid='cart-btn'>
+            <div data-testid='cart-btn' className='flex row m-6'>
                 {/* 0 x <CartIcon /> */}
                 <CartIcon />
             </div>
@@ -116,46 +69,20 @@ function Cart() {
                             <div className="item-details flex-grow pr-2.5">
                                 <h3 className="m-0 text-lg">{item.name}</h3>
                                 <p className="my-1 text-xl">${(item.price ?? 0).toFixed(2)}</p>
-                                {item.availableSizes && item.availableSizes.length > 0 && (
-                                    <div className="mb-2.5">
-                                        <p className="m-0 text-sm">Size:</p>
-                                        <div className="flex gap-1.5">
-                                            {item.availableSizes.map((size: string) => (
-                                                <div
-                                                    key={size}
-                                                    className={`
-                          border border-gray-300 px-2.5 py-1 rounded cursor-pointer text-sm min-w-[30px] text-center
-                          ${item.selectedSize === size
-                                                        ? "bg-black text-white"
-                                                        : "bg-white text-black"
-                                                    }
-                        `}
-                                                >
-                                                    {size.toUpperCase()}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Assuming `item.selectedColor` and `item.availableColors` */}
-                                {item.availableColors && item.availableColors.length > 0 && (
-                                    <div>
-                                        <p className="m-0 text-sm">Color:</p>
-                                        <div className="flex gap-1.5">
-                                            {item.availableColors.map((color: string) => (
-                                                <div
-                                                    key={color}
-                                                    className={`
-                          w-6 h-6 rounded-full cursor-pointer
-                          ${item.selectedColor === color ? "border-2 border-black" : "border border-gray-300"}
-                        `}
-                                                    style={{ backgroundColor: color }} // Tailwind doesn't have dynamic background colors directly, so inline style is used here. For known colors, you could use JIT mode or add custom colors to tailwind.config.js
-                                                // In a real application, you'd want to update the item's color
-                                                // onClick={() => updateItemColor(item.id, color)}
-                                                ></div>
-                                            ))}
-                                        </div>
+                                {item.attributes && item.attributes.length > 0 && (
+                                    <div className="flex flex-col gap-1">
+                                        {item.attributes.map((attribute: any) => (
+                                            <div key={attribute.id} data-testid={"cart-attribute-" + attribute.id}>
+                                                <p className="font-semibold">{attribute.id}</p>
+                                                {attribute.items && attribute.items.length > 0 && (
+                                                    <CartAttributeSelector
+                                                        options={attribute.items.map((item: any) => item.displayValue)}
+                                                        attributeName={attribute.id}
+                                                        brand={item.brand}
+                                                    />
+                                                )}
+                                            </div>
+                                        ))}
                                     </div>
                                 )}
                             </div>
@@ -179,9 +106,6 @@ function Cart() {
                                     +
                                 </button>
                                 <button onClick={() => removeItem(item.id)} className="sr-only">&times;</button>
-                                {/* The image doesn't show a dedicated remove button per item, so I've hidden it for now */}
-                                {/* If you want to keep a hidden remove, you could add: */}
-                                {/* <button onClick={() => removeItem(item.id)} className="sr-only">&times;</button> */}
                             </div>
 
                             <div className="item-image">

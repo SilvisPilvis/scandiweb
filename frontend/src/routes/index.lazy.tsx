@@ -29,6 +29,14 @@ async function fetchProductsCards() {
                     symbol
                 }
                 }
+                attributes {
+                id
+                items {
+                    id
+                    displayValue
+                    value
+                }
+                }
                 brand
                 category {
                 name
@@ -81,7 +89,7 @@ function Index() {
                                 <ProductCard {...product} />
                             </Link>
                             <button
-                            onClick={() => addItem({id: product.id, name: product.name, price: product.prices[0].amount, image: product.gallery[0]})}
+                            onClick={() => addItem({id: product.id, name: product.name, price: product.prices[0].amount, image: product.gallery[0], attributes: product.attributes, brand: product.brand})}
                             data-testid='add-to-cart'
                             ><CartIcon /></button>
                             {/* <CartIcon onClick={() => addItem(product)} /> */}
