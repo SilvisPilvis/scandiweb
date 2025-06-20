@@ -1,12 +1,13 @@
 import parse from 'html-react-parser'
 import { useCart } from 'react-use-cart'
+import { kebabCase } from 'lodash'
 
 const ProductCard = ({id, name, inStock, gallery, description, prices, brand}: {id: string, name: string, inStock: boolean, gallery: string[], description: string, prices: any[], brand: string}) => {
   const { addItem } = useCart();
   return (
     <>
     {inStock ? (
-    <div className="flex flex-col items-start justify-center gap-4 max-w-sm">
+    <div className="flex flex-col items-start justify-center gap-4 max-w-sm" data-testid={"product-" + kebabCase(name)}>
         <img src={gallery[0]} alt={name} className="min-w-72 max-w-72 object-contain rounded-lg aspect-square" />
         <h3 className="text-lg font-bold">{name}</h3>
         <p className="text-lg font-bold">{prices[0].currency.symbol}{prices[0].amount}</p>

@@ -3,6 +3,8 @@ import parse from 'html-react-parser'
 import { useQuery } from '@tanstack/react-query'
 import { useCart } from 'react-use-cart'
 import SizeSelector from '../../components/SizeSelector'
+import Gallery from '../../components/Gallery'
+import { kebabCase } from 'lodash'
 
 export const Route = createFileRoute('/product/$productId')({
   component: Product,
@@ -60,10 +62,19 @@ function isNumeric(str: string) {
            !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
 }
 
-// function isNumeric(str: string) {
-// if (typeof str != "string") return false // we only process strings!  
-// return !isNaN(Number(str)) // ...and ensure strings of whitespace fail
-// }
+function filterArrayNumeric(arr: string[]): string[] {
+    return arr.filter(str => {
+        if (typeof str !== "string") return false;
+        return !isNaN(Number(str));
+    });
+}
+
+function filterArrayString(arr: string[]): string[] {
+    return arr.filter(str => {
+        if (typeof str !== "string") return false;
+        return isNaN(Number(str));
+    });
+}
 
 function Product() {
     const {productId} = Route.useLoaderData()
@@ -82,7 +93,8 @@ function Product() {
         {data &&
         <>
             <div className="flex flex-row gap-4 text-xl">
-                <img src={data.data.getProduct.gallery[0]} alt={data.data.getProduct.name} />
+                {/* <img src={data.data.getProduct.gallery[0]} alt={data.data.getProduct.name} /> */}
+                <Gallery images={data.data.getProduct.gallery} />
                 <div>
                 <p className="text-2xl font-bold">{data.data.getProduct.name}</p>
                 <p>Price: </p>
@@ -90,36 +102,30 @@ function Product() {
                 <div>
                     {data.data.getProduct.brand === 'Canada Goose' ? (
                         data.data.getProduct.attributes.map((attribute: any) => (
-                            <div key={attribute.id}>
+                            <div key={attribute.id} data-testid={"product-attribute-" + kebabCase(attribute.id)}>
                                 <p key={attribute.id}>{attribute.id}</p>
-                                {attribute.items.map((item: any) => (
-                                    !isNumeric(item.displayValue) && <p key={item.id}>{item.displayValue}</p>
-                                ))}
+                                <SizeSelector sizes={filterArrayString(attribute.items.map((item: any) => item.displayValue))} />
                             </div>
                         ))
                     ) : data.data.getProduct.brand.toLowerCase().includes('nike') ? (
                         data.data.getProduct.attributes.map((attribute: any) => (
-                            <div key={attribute.id}>
+                            <div key={attribute.id} data-testid={"product-attribute-" + kebabCase(attribute.id)}>
                                 <p key={attribute.id}>{attribute.id}</p>
-                                {/* {attribute.items.map((item: any) => (
-                                    isNumeric(item.displayValue) && <p key={item.id}>{item.displayValue}</p>
-                                ))} */}
-                                <SizeSelector sizes={attribute.items.map((item: any) => item.displayValue)} />
+                                <SizeSelector sizes={filterArrayNumeric(attribute.items.map((item: any) => item.displayValue))} />
                             </div>
                         ))
                     ) : (
                         data.data.getProduct.attributes.map((attribute: any) => (
-                            <div key={attribute.id}>
+                            <div key={attribute.id} data-testid={"product-attribute-" + kebabCase(attribute.id)}>
+                                {/* The name of the attribute */}
                                 <p key={attribute.id}>{attribute.id}</p>
-                                {attribute.items.map((item: any) => (
-                                    <p key={item.id}>{item.displayValue}</p>
-                                ))}
+                                <SizeSelector sizes={attribute.items.map((item: any) => item.displayValue)} />
                             </div>
                         ))
                     )}
                 </div>
                 <button
-                className="bg-green-500 text-white rounded-md p-2"
+                className="bg-green-500 text-white rounded-md p-2 mt-2"
                 onClick={() => addItem({id: data.data.getProduct.id, name: data.data.getProduct.name, price: data.data.getProduct.prices[0].amount, image: data.data.getProduct.gallery[0]})}
                 data-testid='add-to-cart'
                 >Add to Cart</button>
