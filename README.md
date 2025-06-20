@@ -13,7 +13,7 @@
 * [x] The cart doesn’t need to be saved and doesn’t need to be persistent, it should only be persistent through a single-user session at a minimum. This means saving it in the frontend states and local storage is enough
 * [x] Category link must have attribute data-testid='category-link'
 * [x] Active category link must have attribute data-testid='active-category-link'
-* [ ] Container of the cart item attribute must have attribute data-testid='cart-item-attribute-${attribute name in kebab case}'
+* [x] Container of the cart item attribute must have attribute data-testid='cart-item-attribute-${attribute name in kebab case}'
 * [ ] Cart item attribute option must have attribute data-testid='cart-item-attribute-${attribute name in kebab case}-${attribute name in kebab case}'
 * [ ] Selected cart item attribute option must have attribute data-testid='cart-item-attribute-${attribute name in kebab case}-${attribute name in kebab case}-selected'
 * [x] Button to decrease quantity must have attribute data-testid='cart-item-amount-decrease'

@@ -1,4 +1,3 @@
-import parse from 'html-react-parser'
 import { useCart } from 'react-use-cart'
 import { kebabCase } from 'lodash'
 
@@ -23,7 +22,6 @@ const ProductCard = ({id, name, inStock, gallery, description, prices, brand}: {
                 </p>
             </div>
             <h3 className="text-lg font-bold">{name}</h3>
-            {/* <div className="text-sm text-white">{parse(description)}</div>  */}
             <p className="text-lg font-bold">{prices[0].currency.symbol}{prices[0].amount}</p>
         </div>
     )}
