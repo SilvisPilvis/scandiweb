@@ -6,7 +6,31 @@ import { useState } from 'react'
 // import SizeSelector from '../components/SizeSelector'
 import CartAttributeSelector from '../components/CartAttributeSelector'
 
-function PlaceOrder() {
+async function PlaceOrderMutation(items: string) {
+    console.log(items);
+    const response = await fetch(`http://localhost:8000/graphql`, {
+        method: 'POST',
+        body: JSON.stringify({
+            query: `
+                mutation createOrder($items: OrderInput!){
+                    createOrder(items: $items) {
+                        id
+                    }
+                }
+            `,
+            variables: {
+                items: {
+                    items: items
+                }
+            }
+        })
+    })
+    console.log(response.json());
+    // return response.json()
+}
+
+async function PlaceOrder(items: string) {
+    await PlaceOrderMutation(items);
     alert("Order placed");
 }
 
@@ -25,7 +49,6 @@ function Cart() {
     if (isEmpty && !isOpen)
         return (
             <div data-testid='cart-btn' className='flex row m-6'>
-                {/* 0 x <CartIcon /> */}
                 <CartIcon />
             </div>
         );
@@ -132,7 +155,7 @@ function Cart() {
                     }`}
                     onClick={() => {
                         if (items.length > 0) {
-                            PlaceOrder();
+                            PlaceOrder(JSON.stringify(items));
                             emptyCart();
                         }
                     }}

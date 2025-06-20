@@ -36,6 +36,7 @@ use App\GraphQL\Type\CategoryType;
 use App\GraphQL\Type\AttributeSetType;
 use App\GraphQL\Type\AttributeType;
 use App\GraphQL\Type\PriceType;
+use App\GraphQL\Type\OrderType;
 
 /**
  * Class GraphQL
@@ -224,6 +225,21 @@ class GraphQLController
                             $productData = $args['product'];
                             $contextDb = $ctx['db'];
                             $result = ProductModel::create($productData, $contextDb);
+                            return $result;
+                        }
+                    ],
+                    'createOrder' => [
+                        'type' => OrderType::getType(),
+                        'args' => [
+                            'items' => [
+                                'type' => Type::nonNull(OrderType::getInputType()),
+                                'description' => 'The array of itms in the order',
+                            ],
+                        ],
+                        'resolve' => static function ($root, array $args, $ctx, ResolveInfo $info) {
+                            $productData = $args['items'];
+                            $contextDb = $ctx['db'];
+                            $result = ProductModel::create_order($contextDb, $productData);
                             return $result;
                         }
                     ],
