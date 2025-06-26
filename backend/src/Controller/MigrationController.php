@@ -61,6 +61,10 @@ class MigrationController
                 PRIMARY KEY (product_id, attribute_set_id),
                 FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
                 FOREIGN KEY (attribute_set_id) REFERENCES attribute_sets(id) ON DELETE CASCADE
+            )',
+            'CREATE TABLE orders (
+        	    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	            items VARCHAR(1024) NOT NULL
             )'
         ];
 

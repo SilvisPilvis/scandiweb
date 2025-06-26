@@ -77,33 +77,39 @@ body:graphql {
   #   }
   # }
   
-  query {
-    getProductsByCategory(category: "clothes") {
-      id
-      name
-      inStock
-      gallery
-      description
-      prices {
-        amount
-        currency {
-          label
-          symbol
-        }
-      }
-      attributes {
-        id
-        items {
+  # query {
+  #   getProductsByCategory(category: "clothes") {
+  #     id
+  #     name
+  #     inStock
+  #     gallery
+  #     description
+  #     prices {
+  #       amount
+  #       currency {
+  #         label
+  #         symbol
+  #       }
+  #     }
+  #     attributes {
+  #       id
+  #       items {
+  #         id
+  #         displayValue
+  #         value
+  #       }
+  #     }
+  #     brand
+  #     category {
+  #       name
+  #     }
+  #   }
+  # }
+  
+  mutation createOrder($items: String){
+      createOrder(items: $items) {
           id
-          displayValue
-          value
-        }
       }
-      brand
-      category {
-        name
-      }
-    }
   }
   
 }

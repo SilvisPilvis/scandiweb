@@ -292,6 +292,24 @@ class ProductModel extends Model
         return $result;
     }
 
+    public static function findOrderById($id, $conn) {
+        $stmt = $conn->prepare("SELECT * FROM orders WHERE id = ?");
+        $stmt->bind_param('i', $id);
+        $stmt->execute();
+        $order = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        return $order;
+    }
+
+    public static function create_order($conn, $data) {
+        $result = $conn->prepare("INSERT INTO orders (items) VALUES(?)");
+        $result->bind_param('s', $data['items']);
+        $result->execute();
+        $orderId = $result->insert_id;
+        $result->close();
+        return self::findOrderById($orderId, $conn);
+    }
+
     public static function delete($id, $conn)
     {
         $result = $conn->prepare("DELETE FROM products WHERE id = ?");
