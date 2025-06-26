@@ -8,7 +8,7 @@ import CartAttributeSelector from '../components/CartAttributeSelector'
 
 async function PlaceOrderMutation(items: string) {
     console.log(items);
-    const response = await fetch(`http://localhost:8000/graphql`, {
+    const response = await fetch(import.meta.env.VITE_API_URL, {
         method: 'POST',
         body: JSON.stringify({
             query: `
@@ -148,11 +148,10 @@ function Cart() {
                 </div>
 
                 <button
-                    className={`place-order-button text-white border-none px-7 py-3.5 rounded text-lg w-full mt-5 transition-opacity ${
-                        items.length <= 0
+                    className={`place-order-button text-white border-none px-7 py-3.5 rounded text-lg w-full mt-5 transition-opacity ${items.length <= 0
                             ? 'bg-gray-400 cursor-not-allowed opacity-60'
                             : 'bg-[#5cb85c] cursor-pointer hover:opacity-90'
-                    }`}
+                        }`}
                     onClick={() => {
                         if (items.length > 0) {
                             PlaceOrder(JSON.stringify(items));
@@ -174,21 +173,21 @@ export const Route = createRootRoute({
             <div className="p-2 flex gap-2">
                 <Link
                     to="/"
-                    activeProps={{ 'data-testid': 'active-category-link' , 'className': 'font-bold'}}
+                    activeProps={{ 'data-testid': 'active-category-link', 'className': 'font-bold' }}
                     inactiveProps={{ 'data-testid': 'category-link' }}
                 >
                     All
                 </Link>{' '}
                 <Link
                     to="/clothes"
-                    activeProps={{ 'data-testid': 'active-category-link' , 'className': 'font-bold'}}
+                    activeProps={{ 'data-testid': 'active-category-link', 'className': 'font-bold' }}
                     inactiveProps={{ 'data-testid': 'category-link' }}
                 >
                     Clothes
                 </Link>{' '}
                 <Link
                     to="/tech"
-                    activeProps={{ 'data-testid': 'active-category-link' , 'className': 'font-bold'}}
+                    activeProps={{ 'data-testid': 'active-category-link', 'className': 'font-bold' }}
                     inactiveProps={{ 'data-testid': 'category-link' }}
                 >
                     Tech

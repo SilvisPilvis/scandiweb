@@ -10,8 +10,6 @@ export const Route = createFileRoute('/product/$productId')({
   component: Product,
   loader: async ({params}) => {
     const {productId} = params
-    // const {data} = await fetchProduct(productId)
-    // return data
     return {
         productId
     }
@@ -19,7 +17,7 @@ export const Route = createFileRoute('/product/$productId')({
 })
 
 async function fetchProduct(id: string) {
-    const response = await fetch(`http://localhost:8000/graphql`, {
+    const response = await fetch(import.meta.env.VITE_API_URL, {
         method: 'POST',
         body: JSON.stringify({query: `
             {
@@ -54,12 +52,6 @@ async function fetchProduct(id: string) {
         })
     })
     return response.json()
-}
-
-function isNumeric(str: string) {
-    if (typeof str != "string") return false // we only process strings!  
-    return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
-           !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
 }
 
 function filterArrayNumeric(arr: string[]): string[] {
