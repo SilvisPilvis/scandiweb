@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import ProductCard from '../components/ProductCard'
 import { useQuery } from '@tanstack/react-query'
 import { createLazyFileRoute, Link } from '@tanstack/react-router'
@@ -11,7 +10,7 @@ export const Route = createLazyFileRoute("/")({
 })
 
 async function fetchProductsCards() {
-    const response = await fetch(`http://localhost:8000/graphql`, {
+    const response = await fetch(import.meta.env.VITE_API_URL, {
         method: 'POST',
         body: JSON.stringify({
             query: `
@@ -48,17 +47,7 @@ async function fetchProductsCards() {
     return response.json()
 }
 
-async function fetchCategories() {
-    const response = await fetch(`http://localhost:8000/graphql`, {
-        method: 'POST',
-        body: JSON.stringify({ query: `{ getCategories { name } }` })
-    })
-    return response.json()
-}
-
 function Index() {
-    const [selectedCategory, setSelectedCategory] = useState('all')
-
     const { data, isLoading, error } = useQuery({
         queryKey: ['products'],
         queryFn: fetchProductsCards

@@ -1,7 +1,7 @@
 import { useCart } from 'react-use-cart'
 import { kebabCase } from 'lodash'
 
-const ProductCard = ({id, name, inStock, gallery, description, prices, brand}: {id: string, name: string, inStock: boolean, gallery: string[], description: string, prices: any[], brand: string}) => {
+const ProductCard = ({id, name, inStock, gallery, prices}: {id: string, name: string, inStock: boolean, gallery: string[], prices: any[]}) => {
   const { addItem } = useCart();
   return (
     <>

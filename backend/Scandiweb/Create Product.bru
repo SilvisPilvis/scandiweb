@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: http://localhost:8000/graphql
+  url: https://silber.ct.ws/graphql
   body: graphql
   auth: inherit
 }
@@ -48,34 +48,34 @@ body:graphql {
   #   }
   # }
   
-  # query {
-  #   getProducts {
-  #     id
-  #     name
-  #     inStock
-  #     gallery
-  #     description
-  #     prices {
-  #       amount
-  #       currency {
-  #         label
-  #         symbol
-  #       }
-  #     }
-  #     attributes {
-  #       id
-  #       items {
-  #         id
-  #         displayValue
-  #         value
-  #       }
-  #     }
-  #     brand
-  #     category {
-  #       name
-  #     }
-  #   }
-  # }
+  query {
+    getProducts {
+      id
+      name
+      inStock
+      gallery
+      description
+      prices {
+        amount
+        currency {
+          label
+          symbol
+        }
+      }
+      attributes {
+        id
+        items {
+          id
+          displayValue
+          value
+        }
+      }
+      brand
+      category {
+        name
+      }
+    }
+  }
   
   # query {
   #   getProductsByCategory(category: "clothes") {
@@ -106,10 +106,10 @@ body:graphql {
   #   }
   # }
   
-  mutation createOrder($items: String){
-      createOrder(items: $items) {
-          id
-      }
-  }
+  # mutation createOrder($items: String){
+  #     createOrder(items: $items) {
+  #         id
+  #     }
+  # }
   
 }

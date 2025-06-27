@@ -1,7 +1,8 @@
 <?php
+use App\Controller\MigrationController;
 
 // Add CORS headers
-header('Access-Control-Allow-Origin: http://localhost:5173'); // Replace with your frontend URL if different
+header('Access-Control-Allow-Origin: *'); // Replace with your frontend URL if different
 header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
@@ -30,15 +31,23 @@ $dispatcher = FastRoute\simpleDispatcher(
         // $r->post('/graphql', [GraphQL::class, 'handle']);
         $r->post('/graphql', [$graphql, 'handle']);
 
+        $r->get('/', function () {
+            return 'Testogus';
+        });
+
         $r->addGroup(
             '/api',
             function (FastRoute\RouteCollector $r) {
                 $r->get(
                     '/',
                     function () {
+                        // echo 'Hello World!';
                         return 'Hello World!';
                     }
                 );
+                $r->get('/migrate', function () {
+                    return 'Migrating database...';
+                });
             }
         );
     }
