@@ -72,7 +72,7 @@ function Cart() {
 
     return (
         <>
-            <div className="fixed inset-0 bg-black opacity-50 z-40" onClick={() => setIsOpen(false)} />
+            <div className="fixed inset-0 bg-black opacity-50 z-40" data-testid="cart-overlay" onClick={() => setIsOpen(false)} />
             <div data-testid='cart-btn'
                 className="cart-container border border-dashed border-gray-300 p-5 w-[400px] my-5 mx-auto rounded-lg bg-neutral-600 relative z-50"
             >
