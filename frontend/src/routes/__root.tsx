@@ -48,7 +48,7 @@ function Cart() {
 
     if (isEmpty && !isOpen)
         return (
-            <div data-testid='cart-btn' className='flex row m-6'>
+            <div data-testid='cart-btn' className='flex row m-6' onClick={() => setIsOpen(true)}>
                 <CartIcon />
             </div>
         );
@@ -67,6 +67,14 @@ function Cart() {
                         </span>
                     )}
                 </div>
+            </div>
+        );
+
+    if (isEmpty && isOpen)
+        return (
+            <div data-testid='cart-btn' className='flex row m-6' data-testid="cart-overlay" onClick={() => setIsOpen(false)}>
+                <CartIcon />
+                <p>Your cart is empty</p>
             </div>
         );
 
@@ -173,6 +181,13 @@ export const Route = createRootRoute({
             <div className="p-2 flex gap-2">
                 <Link
                     to="/"
+                    activeProps={{ 'data-testid': 'active-category-link', 'className': 'font-bold' }}
+                    inactiveProps={{ 'data-testid': 'category-link' }}
+                >
+                    Home
+                </Link>{' '}
+                <Link
+                    to="/all"
                     activeProps={{ 'data-testid': 'active-category-link', 'className': 'font-bold' }}
                     inactiveProps={{ 'data-testid': 'category-link' }}
                 >
