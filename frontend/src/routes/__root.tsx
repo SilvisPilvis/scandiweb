@@ -72,9 +72,11 @@ function Cart() {
 
     if (isEmpty && isOpen)
         return (
-            <div data-testid='cart-btn' className='flex row m-6' data-testid="cart-overlay" onClick={() => setIsOpen(false)}>
-                <CartIcon />
-                <p>Your cart is empty</p>
+            <div data-testid="cart-overlay">
+                <div data-testid='cart-btn' className='flex row m-6' onClick={() => setIsOpen(false)}>
+                    <CartIcon />
+                    <p>Your cart is empty</p>
+                </div>
             </div>
         );
 
