@@ -2,7 +2,7 @@ import { createRootRoute, Link, Outlet } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import { useCart } from 'react-use-cart'
 import CartIcon from '../icons/CartIcon'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 // import SizeSelector from '../components/SizeSelector'
 import CartAttributeSelector from '../components/CartAttributeSelector'
 
@@ -34,11 +34,22 @@ async function PlaceOrder(items: string) {
     alert("Order placed");
 }
 
-function Cart() {
-    const { isEmpty, totalUniqueItems, items, updateItemQuantity, removeItem, emptyCart } =
-        useCart();
+interface CartProps {
+    initialOpen?: boolean; // New prop to control initial open state
+}
 
-    const [isOpen, setIsOpen] = useState(false);
+function Cart({ initialOpen = false }: CartProps) {
+    const { isEmpty, totalUniqueItems, items, updateItemQuantity, removeItem, emptyCart } =
+    useCart();
+
+    const [isOpen, setIsOpen] = useState(initialOpen);
+
+    // Effect to open cart when totalUniqueItems changes (i.e., an item is added)
+    useEffect(() => {
+        if (!isEmpty && !isOpen) {
+            setIsOpen(true);
+        }
+    }, [totalUniqueItems]); // Re-run when totalUniqueItems changes
 
     // Calculate total price
     const totalPrice = items.reduce(
