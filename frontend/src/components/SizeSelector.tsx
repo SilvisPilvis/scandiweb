@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const SizeSelector = ({sizes}: {sizes: string[]}) => {
+const SizeSelector = ({sizes, test, name}: {sizes: string[], test: string[], name: string}) => {
   const [selectedSize, setSelectedSize] = useState('S'); // Default to 'S' as in the image
 
   const handleSizeClick = (size: string) => {
@@ -10,8 +10,9 @@ const SizeSelector = ({sizes}: {sizes: string[]}) => {
   return (
     <div>
       <div style={{ display: 'flex', gap: '10px' }}>
-        {sizes.map((size) => (
+        {sizes.map((size, index) => (
           <button
+            data-testid={"product-attribute-" + name.toLowerCase() + "-" + test[index]}
             key={size}
             onClick={() => handleSizeClick(size)}
             style={{

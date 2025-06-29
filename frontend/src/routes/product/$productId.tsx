@@ -96,14 +96,14 @@ function Product() {
                         data.data.getProduct.attributes.map((attribute: any) => (
                             <div key={attribute.id} data-testid={"product-attribute-" + kebabCase(attribute.id)}>
                                 <p key={attribute.id}>{attribute.id}</p>
-                                <SizeSelector sizes={filterArrayString(attribute.items.map((item: any) => item.displayValue))} />
+                                <SizeSelector sizes={filterArrayString(attribute.items.map((item: any) => item.displayValue))} test={attribute.items.map((item: any) => item.value)} name={attribute.id} />
                             </div>
                         ))
                     ) : data.data.getProduct.brand.toLowerCase().includes('nike') ? (
                         data.data.getProduct.attributes.map((attribute: any) => (
                             <div key={attribute.id} data-testid={"product-attribute-" + kebabCase(attribute.id)}>
                                 <p key={attribute.id}>{attribute.id}</p>
-                                <SizeSelector sizes={filterArrayNumeric(attribute.items.map((item: any) => item.displayValue))} />
+                                <SizeSelector sizes={filterArrayNumeric(attribute.items.map((item: any) => item.displayValue))} test={attribute.items.map((item: any) => item.value)} name={attribute.id} />
                             </div>
                         ))
                     ) : (
@@ -111,7 +111,7 @@ function Product() {
                             <div key={attribute.id} data-testid={"product-attribute-" + kebabCase(attribute.id)}>
                                 {/* The name of the attribute */}
                                 <p key={attribute.id}>{attribute.id}</p>
-                                <SizeSelector sizes={attribute.items.map((item: any) => item.displayValue)} />
+                                <SizeSelector sizes={attribute.items.map((item: any) => item.displayValue)} test={attribute.items.map((item: any) => item.value)} name={attribute.id} />
                             </div>
                         ))
                     )}

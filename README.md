@@ -6,7 +6,7 @@
 * [x] The button element must have attribute data-testid='cart-btn'
 * [x] Item count bubble Shall be visible on the cart overlay button only if there are products in the cart
 * [x] If only one item is in the cart, it should be shown as 1 Item . If 2 or more plural forms should be used: X Items
-* [ ] Placeorder has to perform respective GraphQL mutation that as a result will create a new order in DB
+* [x] Placeorder has to perform respective GraphQL mutation that as a result will create a new order in DB
 * [x] Once an order is placed, the cart should be emptied
 * [x] If a cart is empty the button shall be greyed out and disabled
 * [x] When the cart overlay is open the whole page except the header shall be greyed out. Refer to designs for a visual example
@@ -14,8 +14,8 @@
 * [x] Category link must have attribute data-testid='category-link'
 * [x] Active category link must have attribute data-testid='active-category-link'
 * [x] Container of the cart item attribute must have attribute data-testid='cart-item-attribute-${attribute name in kebab case}'
-* [ ] Cart item attribute option must have attribute data-testid='cart-item-attribute-${attribute name in kebab case}-${attribute name in kebab case}'
-* [ ] Selected cart item attribute option must have attribute data-testid='cart-item-attribute-${attribute name in kebab case}-${attribute name in kebab case}-selected'
+* [x] Cart item attribute option must have attribute data-testid='cart-item-attribute-${attribute name in kebab case}-${attribute name in kebab case}'
+* [x] Selected cart item attribute option must have attribute data-testid='cart-item-attribute-${attribute name in kebab case}-${attribute name in kebab case}-selected'
 * [x] Button to decrease quantity must have attribute data-testid='cart-item-amount-decrease'
 * [x] Button to increase quantity must have attribute data-testid='cart-item-amount-increase'
 * [x] Cart item amount indicator must have attribute data-testid='cart-item-amount'
