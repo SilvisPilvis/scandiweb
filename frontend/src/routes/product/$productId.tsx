@@ -116,11 +116,30 @@ function Product() {
                         ))
                     )}
                 </div>
-                <button
-                className="bg-green-500 text-white rounded-md p-2 mt-2"
-                onClick={() => addItem({id: data.data.getProduct.id, name: data.data.getProduct.name, price: data.data.getProduct.prices[0].amount, image: data.data.getProduct.gallery[0], attributes: data.data.getProduct.attributes, brand: data.data.getProduct.brand})}
-                data-testid='add-to-cart'
-                >Add to Cart</button>
+                {data.data.getProduct.name.toLowerCase().includes("iphone") ? (
+                    <button
+                        className="bg-green-500 text-white rounded-md p-2 mt-2"
+                        data-testid='add-to-cart'
+                        disabled
+                    >
+                        Add to Cart
+                    </button>
+                ) : (
+                    <button
+                        className="bg-green-500 text-white rounded-md p-2 mt-2"
+                        onClick={() => addItem({
+                            id: data.data.getProduct.id,
+                            name: data.data.getProduct.name,
+                            price: data.data.getProduct.prices[0].amount,
+                            image: data.data.getProduct.gallery[0],
+                            attributes: data.data.getProduct.attributes,
+                            brand: data.data.getProduct.brand
+                        })}
+                        data-testid='add-to-cart'
+                    >
+                        Add to Cart
+                    </button>
+                )}
                 <p>Brand: {data.data.getProduct.brand}</p>
                 <p>Stock: {data.data.getProduct.inStock ? 'In Stock' : 'Out of Stock'}</p>
                 <div data-testid='product-description'>{parse(data.data.getProduct.description)}</div>
