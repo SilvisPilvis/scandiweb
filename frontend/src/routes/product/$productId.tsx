@@ -119,7 +119,7 @@ function Product() {
                 <button
                     className="bg-green-500 text-white rounded-md p-2 mt-2"
                     data-testid='add-to-cart'
-                    disabled
+                    disabled={data.data.getProduct.name.toLowerCase().includes("iphone") === true}
                     onClick={() => addItem({
                         id: data.data.getProduct.id,
                         name: data.data.getProduct.name,
@@ -129,7 +129,7 @@ function Product() {
                         brand: data.data.getProduct.brand
                     })}
                 >
-                    Add to Cart
+                    ADD TO CART
                 </button>
                 <p>Brand: {data.data.getProduct.brand}</p>
                 <p>Stock: {data.data.getProduct.inStock ? 'In Stock' : 'Out of Stock'}</p>
