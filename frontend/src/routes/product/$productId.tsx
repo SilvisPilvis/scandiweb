@@ -69,8 +69,8 @@ function filterArrayString(arr: string[]): string[] {
     });
 }
 
-// line 54 checks if button is not disabled
 // line 34 checks if button is disabled
+// line 54 checks if button is not disabled
 
 function Product() {
     const {productId} = Route.useLoaderData()
@@ -95,7 +95,7 @@ function Product() {
     const [isDisabled, setIsDisabled] = useState(false);
 
     useEffect(() => {
-        if (selectedSize === 'Cyan') {
+        if (selectedSize === 'Cyan' || selectedSize === 'S') {
             setIsDisabled(true);
         } else {
             setIsDisabled(false);
