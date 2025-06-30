@@ -1,10 +1,7 @@
-import { useState } from "react";
-
-const SizeSelector = ({sizes, test, name}: {sizes: string[], test: string[], name: string}) => {
-  const [selectedSize, setSelectedSize] = useState('S'); // Default to 'S' as in the image
+const SizeSelector = ({sizes, test, name, selectedSize, onSizeChange}: {sizes: string[], test: string[], name: string, selectedSize: string, onSizeChange: (size: string) => void}) => {
 
   const handleSizeClick = (size: string) => {
-    setSelectedSize(size);
+    onSizeChange(size);
   };
 
   return (

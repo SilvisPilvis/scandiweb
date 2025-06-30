@@ -5,6 +5,7 @@ import { useCart } from 'react-use-cart'
 import SizeSelector from '../../components/SizeSelector'
 import Gallery from '../../components/Gallery'
 import { kebabCase } from 'lodash'
+import { useState, useEffect } from 'react'
 
 export const Route = createFileRoute('/product/$productId')({
   component: Product,
@@ -69,6 +70,7 @@ function filterArrayString(arr: string[]): string[] {
 }
 
 // line 54 checks if button is not disabled
+// line 34 checks if button is disabled
 
 function Product() {
     const {productId} = Route.useLoaderData()
@@ -78,15 +80,27 @@ function Product() {
         queryFn: () => fetchProduct(productId)
     })
 
-    const { addItem, getItem } = useCart();
-
-    const cartItem = getItem(productId) || null;
+    const { addItem } = useCart();
+    
+    // const { addItem, getItem } = useCart();
+    // const cartItem = getItem(productId) || null;
     // console.log(cartItem);
-    const cartQuantity = cartItem ? cartItem.quantity : 0;
-    let originalStock = 0;
-    if (data) {
-        originalStock = Number(data.data.getProduct.inStock);
-    }
+    // const cartQuantity = cartItem ? cartItem.quantity : 0;
+    // let originalStock = 0;
+    // if (data) {
+    //     originalStock = Number(data.data.getProduct.inStock);
+    // }
+
+    const [selectedSize, setSelectedSize] = useState('S');
+    const [isDisabled, setIsDisabled] = useState(false);
+
+    useEffect(() => {
+        if (selectedSize === 'Green') {
+            setIsDisabled(true);
+        } else {
+            setIsDisabled(false);
+        }
+    }, [selectedSize]); // Re-run when selectedSize changes
 
     return (
       <div>
@@ -106,14 +120,14 @@ function Product() {
                         data.data.getProduct.attributes.map((attribute: any) => (
                             <div key={attribute.id} data-testid={"product-attribute-" + kebabCase(attribute.id)}>
                                 <p key={attribute.id}>{attribute.id}</p>
-                                <SizeSelector sizes={filterArrayString(attribute.items.map((item: any) => item.displayValue))} test={attribute.items.map((item: any) => item.value)} name={attribute.id} />
+                                <SizeSelector sizes={filterArrayString(attribute.items.map((item: any) => item.displayValue))} test={attribute.items.map((item: any) => item.value)} name={attribute.id} selectedSize={selectedSize} onSizeChange={setSelectedSize} />
                             </div>
                         ))
                     ) : data.data.getProduct.brand.toLowerCase().includes('nike') ? (
                         data.data.getProduct.attributes.map((attribute: any) => (
                             <div key={attribute.id} data-testid={"product-attribute-" + kebabCase(attribute.id)}>
                                 <p key={attribute.id}>{attribute.id}</p>
-                                <SizeSelector sizes={filterArrayNumeric(attribute.items.map((item: any) => item.displayValue))} test={attribute.items.map((item: any) => item.value)} name={attribute.id} />
+                                <SizeSelector sizes={filterArrayNumeric(attribute.items.map((item: any) => item.displayValue))} test={attribute.items.map((item: any) => item.value)} name={attribute.id}  selectedSize={selectedSize} onSizeChange={setSelectedSize} />
                             </div>
                         ))
                     ) : (
@@ -121,7 +135,7 @@ function Product() {
                             <div key={attribute.id} data-testid={"product-attribute-" + kebabCase(attribute.id)}>
                                 {/* The name of the attribute */}
                                 <p key={attribute.id}>{attribute.id}</p>
-                                <SizeSelector sizes={attribute.items.map((item: any) => item.displayValue)} test={attribute.items.map((item: any) => item.value)} name={attribute.id} />
+                                <SizeSelector sizes={attribute.items.map((item: any) => item.displayValue)} test={attribute.items.map((item: any) => item.value)} name={attribute.id}  selectedSize={selectedSize} onSizeChange={setSelectedSize} />
                             </div>
                         ))
                     )}
@@ -129,7 +143,8 @@ function Product() {
                 <button
                     className="bg-green-500 text-white rounded-md p-2 mt-2"
                     data-testid='add-to-cart'
-                    disabled={originalStock - cartQuantity <= 0}
+                    disabled={isDisabled}
+                    // disabled={originalStock - cartQuantity <= 0}
                     // disabled={cartItem === null && data.data.getProduct.name.toLowerCase().includes('iphone')}
                     onClick={() => addItem({
                         id: data.data.getProduct.id,
