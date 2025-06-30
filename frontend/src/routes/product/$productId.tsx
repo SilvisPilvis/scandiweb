@@ -68,6 +68,8 @@ function filterArrayString(arr: string[]): string[] {
     });
 }
 
+// line 54 checks if button is not disabled
+
 function Product() {
     const {productId} = Route.useLoaderData()
 
@@ -79,12 +81,12 @@ function Product() {
     const { addItem, getItem } = useCart();
 
     const cartItem = getItem(productId) || null;
-    console.log(cartItem);
-    // const cartQuantity = cartItem ? cartItem.quantity : 0;
-    // let originalStock = 0;
-    // if (data) {
-    //     originalStock = Number(data.data.getProduct.inStock);
-    // }
+    // console.log(cartItem);
+    const cartQuantity = cartItem ? cartItem.quantity : 0;
+    let originalStock = 0;
+    if (data) {
+        originalStock = Number(data.data.getProduct.inStock);
+    }
 
     return (
       <div>
@@ -127,8 +129,8 @@ function Product() {
                 <button
                     className="bg-green-500 text-white rounded-md p-2 mt-2"
                     data-testid='add-to-cart'
-                    // disabled={originalStock - cartQuantity <= 0}
-                    disabled={cartItem === null && data.data.getProduct.name.toLowerCase().includes('iphone')}
+                    disabled={originalStock - cartQuantity <= 0}
+                    // disabled={cartItem === null && data.data.getProduct.name.toLowerCase().includes('iphone')}
                     onClick={() => addItem({
                         id: data.data.getProduct.id,
                         name: data.data.getProduct.name,
