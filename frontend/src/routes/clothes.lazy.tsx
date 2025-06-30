@@ -1,9 +1,7 @@
 import ProductCard from '../components/ProductCard'
 import { useQuery } from '@tanstack/react-query'
 import { createLazyFileRoute, Link } from '@tanstack/react-router'
-import { useCart } from 'react-use-cart'
 import '../app.css'
-import CartIcon from '../icons/CartIcon'
 
 export const Route = createLazyFileRoute("/clothes")({
     component: ClothesIndex,
@@ -57,8 +55,6 @@ function ClothesIndex() {
         queryFn: fetchClothesProducts
     })
 
-    const { addItem } = useCart();
-
     if (isLoading) return <div>Loading clothes...</div>;
     if (error) return <div>Error fetching clothes: {error.message}</div>;
 
@@ -78,10 +74,6 @@ function ClothesIndex() {
                         >
                             <ProductCard {...product} />
                         </Link>
-                        <button
-                        onClick={() => addItem({id: product.id, name: product.name, price: product.prices[0].amount, image: product.gallery[0], attributes: product.attributes, brand: product.brand})}
-                        data-testid='add-to-cart'
-                        ><CartIcon /></button>
                     </div>
                 ))}
             </main>
