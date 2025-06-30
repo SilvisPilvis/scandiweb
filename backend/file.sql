@@ -13,15 +13,15 @@ SET FOREIGN_KEY_CHECKS = 0;
 
 -- Drop all tables. It's safe to drop them in any order when FOREIGN_KEY_CHECKS is 0.
 -- We specify the full schema name as it's present in the original script's DROP statements.
-DROP TABLE IF EXISTS `if0_39327894_scandiweb`.`attribute_set_items`;
-DROP TABLE IF EXISTS `if0_39327894_scandiweb`.`product_attribute_sets`;
-DROP TABLE IF EXISTS `if0_39327894_scandiweb`.`product_gallery_images`;
-DROP TABLE IF EXISTS `if0_39327894_scandiweb`.`prices`;
-DROP TABLE IF EXISTS `if0_39327894_scandiweb`.`products`;
-DROP TABLE IF EXISTS `if0_39327894_scandiweb`.`attributes`;
-DROP TABLE IF EXISTS `if0_39327894_scandiweb`.`attribute_sets`;
-DROP TABLE IF EXISTS `if0_39327894_scandiweb`.`categories`;
-DROP TABLE IF EXISTS `if0_39327894_scandiweb`.`orders`;
+DROP TABLE IF EXISTS `scandiweb`.`attribute_set_items`;
+DROP TABLE IF EXISTS `scandiweb`.`product_attribute_sets`;
+DROP TABLE IF EXISTS `scandiweb`.`product_gallery_images`;
+DROP TABLE IF EXISTS `scandiweb`.`prices`;
+DROP TABLE IF EXISTS `scandiweb`.`products`;
+DROP TABLE IF EXISTS `scandiweb`.`attributes`;
+DROP TABLE IF EXISTS `scandiweb`.`attribute_sets`;
+DROP TABLE IF EXISTS `scandiweb`.`categories`;
+DROP TABLE IF EXISTS `scandiweb`.`orders`;
 
 -- Re-enable foreign key checks before creating tables, as constraints will be added then.
 -- Alternatively, you could leave them off until all CREATE TABLE and INSERT statements are done.
@@ -117,7 +117,7 @@ CREATE TABLE IF NOT EXISTS `product_gallery_images` (
 -- child tables (e.g., `prices`, `product_gallery_images`, `product_attribute_sets`)
 -- that reference them.
 
-INSERT INTO `if0_39327894_scandiweb`.`attributes` (`id`, `display_value`, `value`) VALUES
+INSERT INTO `scandiweb`.`attributes` (`id`, `display_value`, `value`) VALUES
 ('1T', '1T', '1T'),
 ('256GB', '256GB', '256GB'),
 ('40', '40', '40'),
@@ -137,19 +137,19 @@ INSERT INTO `if0_39327894_scandiweb`.`attributes` (`id`, `display_value`, `value
 ('White', 'White', '#FFFFFF'),
 ('Yes', 'Yes', 'Yes');
 
-INSERT INTO `if0_39327894_scandiweb`.`attribute_sets` (`id`, `name`, `type`) VALUES
+INSERT INTO `scandiweb`.`attribute_sets` (`id`, `name`, `type`) VALUES
 ('Capacity', 'Capacity', 'text'),
 ('Color', 'Color', 'swatch'),
 ('Size', 'Size', 'text'),
 ('Touch ID in keyboard', 'Touch ID in keyboard', 'text'),
 ('With USB 3 ports', 'With USB 3 ports', 'text');
 
-INSERT INTO `if0_39327894_scandiweb`.`categories` (`id`, `name`) VALUES
+INSERT INTO `scandiweb`.`categories` (`id`, `name`) VALUES
 (1, 'all'),
 (2, 'clothes'),
 (3, 'tech');
 
-INSERT INTO `if0_39327894_scandiweb`.`products` (`id`, `name`, `in_stock`, `description`, `category_id`, `brand`) VALUES
+INSERT INTO `scandiweb`.`products` (`id`, `name`, `in_stock`, `description`, `category_id`, `brand`) VALUES
 ('apple-airpods-pro', 'AirPods Pro', 0, 'Magic like you''ve never heard', 3, 'Apple'),
 ('apple-imac-2021', 'iMac 2021', 1, 'The new iMac!', 3, 'Apple'),
 ('apple-iphone-12-pro', 'iPhone 12 Pro', 1, 'This is iPhone 12. Nothing else to say.', 3, 'Apple'),
@@ -158,7 +158,7 @@ INSERT INTO `if0_39327894_scandiweb`.`products` (`id`, `name`, `in_stock`, `desc
 ('ps-5', 'PlayStation 5', 1, '<p>A good gaming console. Plays games of PS4! Enjoy if you can buy it mwahahahaha</p>', 3, 'Sony'),
 ('xbox-series-s', 'Xbox Series S 512GB', 0, '<div><ul><li><span>Hardware-beschleunigtes Raytracing macht dein Spiel noch realistischer</span></li></ul></div>', 3, 'Microsoft');
 
-INSERT INTO `if0_39327894_scandiweb`.`prices` (`id`, `product_id`, `amount`, `currency`) VALUES
+INSERT INTO `scandiweb`.`prices` (`id`, `product_id`, `amount`, `currency`) VALUES
 (1, 'huarache-x-stussy-le', 144.69, 'USD'),
 (2, 'jacket-canada-goosee', 518.47, 'USD'),
 (3, 'ps-5', 844.02, 'USD'),
@@ -167,7 +167,7 @@ INSERT INTO `if0_39327894_scandiweb`.`prices` (`id`, `product_id`, `amount`, `cu
 (6, 'apple-iphone-12-pro', 1000.76, 'USD'),
 (7, 'apple-airpods-pro', 300.23, 'USD');
 
-INSERT INTO `if0_39327894_scandiweb`.`attribute_set_items` (`attribute_set_id`, `attribute_id`) VALUES
+INSERT INTO `scandiweb`.`attribute_set_items` (`attribute_set_id`, `attribute_id`) VALUES
 ('Capacity', '1T'),
 ('Capacity', '256GB'),
 ('Size', '40'),
@@ -189,7 +189,7 @@ INSERT INTO `if0_39327894_scandiweb`.`attribute_set_items` (`attribute_set_id`, 
 ('Touch ID in keyboard', 'Yes'),
 ('With USB 3 ports', 'Yes');
 
-INSERT INTO `if0_39327894_scandiweb`.`product_attribute_sets` (`product_id`, `attribute_set_id`) VALUES
+INSERT INTO `scandiweb`.`product_attribute_sets` (`product_id`, `attribute_set_id`) VALUES
 ('apple-imac-2021', 'Capacity'),
 ('apple-iphone-12-pro', 'Capacity'),
 ('ps-5', 'Capacity'),
@@ -202,7 +202,7 @@ INSERT INTO `if0_39327894_scandiweb`.`product_attribute_sets` (`product_id`, `at
 ('apple-imac-2021', 'Touch ID in keyboard'),
 ('apple-imac-2021', 'With USB 3 ports');
 
-INSERT INTO `if0_39327894_scandiweb`.`product_gallery_images` (`id`, `product_id`, `image_url`) VALUES
+INSERT INTO `scandiweb`.`product_gallery_images` (`id`, `product_id`, `image_url`) VALUES
 (1, 'huarache-x-stussy-le', 'https://cdn.shopify.com/s/files/1/0087/6193/3920/products/DD1381200_DEOA_2_720x.jpg?v=1612816087'),
 (2, 'huarache-x-stussy-le', 'https://cdn.shopify.com/s/files/1/0087/6193/3920/products/DD1381200_DEOA_1_720x.jpg?v=1612816087'),
 (3, 'huarache-x-stussy-le', 'https://cdn.shopify.com/s/files/1/0087/6193/3920/products/DD1381200_DEOA_3_720x.jpg?v=1612816087'),
