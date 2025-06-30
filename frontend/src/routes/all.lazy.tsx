@@ -53,11 +53,6 @@ function Index() {
         queryFn: fetchProductsCards
     })
 
-    // const { data: categories, isLoading: categoriesLoading, error: categoriesError } = useQuery({
-    //     queryKey: ['categories'],
-    //     queryFn: fetchCategories
-    // })
-
     const { addItem } = useCart();
 
     return (
