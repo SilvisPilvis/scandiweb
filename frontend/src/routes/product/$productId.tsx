@@ -127,7 +127,8 @@ function Product() {
                 <button
                     className="bg-green-500 text-white rounded-md p-2 mt-2"
                     data-testid='add-to-cart'
-                    disabled={originalStock - cartQuantity <= 0}
+                    // disabled={originalStock - cartQuantity <= 0}
+                    disabled={cartItem === null && data.data.getProduct.name.toLowerCase().includes('iphone')}
                     onClick={() => addItem({
                         id: data.data.getProduct.id,
                         name: data.data.getProduct.name,
