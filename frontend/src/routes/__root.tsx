@@ -112,7 +112,7 @@ function Cart({ initialOpen = false }: CartProps) {
     if (isEmpty && isOpen)
         return (
             <div data-testid="cart-overlay">
-                <div data-testid='cart-btn' className='flex row' onClick={() => setIsOpen(false)}>
+                <div data-testid='cart-btn' className='flex row absolute' onClick={() => setIsOpen(false)}>
                     <CartIcon />
                     <p>Your cart is empty</p>
                 </div>
@@ -123,7 +123,7 @@ function Cart({ initialOpen = false }: CartProps) {
         <>
             <div className="fixed inset-0 bg-black opacity-50 z-40" data-testid="cart-overlay" onClick={() => setIsOpen(false)} />
             <div data-testid='cart-btn'
-                className="cart-container border border-dashed border-gray-300 p-5 w-[400px] my-5 mx-auto rounded-lg bg-neutral-600 relative z-50"
+                className="cart-container border border-dashed border-gray-300 p-5 w-[400px] my-5 mx-auto rounded-lg bg-neutral-600 absolute z-50"
             >
                 <div className="cart-header border-b border-dashed border-gray-300 pb-2.5 mb-5 flex row justify-between">
                     <h2 className="m-0 text-xl font-bold" data-testid='cart-total'>
@@ -138,9 +138,9 @@ function Cart({ initialOpen = false }: CartProps) {
                     {items.map((item) => (
                         <li
                             key={item.id}
-                            className="flex items-center mb-5 border-b border-dashed border-gray-200 pb-5 last:border-b-0 last:mb-0 last:pb-0"
+                            className="flex flex-col items-start mb-5 border-b border-dashed border-gray-200 pb-5 last:border-b-0 last:mb-0 last:pb-0"
                         >
-                            <div className="item-details flex-grow pr-2.5">
+                            <div className="item-details w-full mb-2">
                                 <h3 className="m-0 text-lg">{item.name}</h3>
                                 <p className="my-1 text-xl">${(item.price ?? 0).toFixed(2)}</p>
                                 {item.attributes && Object.keys(item.attributes).length > 0 && (
@@ -164,7 +164,8 @@ function Cart({ initialOpen = false }: CartProps) {
                                 )}
                             </div>
 
-                            <div className="item-quantity-controls flex flex-row gap-2 items-center mr-4">
+                            <div className="item-quantity-controls flex flex-row gap-2 items-center mb-2">
+                                <p className='font-bold'>Quantity:</p>
                                 <button
                                     onClick={() =>
                                         updateItemQuantity(item.id, (item.quantity ?? 0) - 1)
@@ -185,11 +186,11 @@ function Cart({ initialOpen = false }: CartProps) {
                                 <button onClick={() => removeItem(item.id)} className="sr-only">&times;</button>
                             </div>
 
-                            <div className="item-image">
+                            <div className="item-image w-full flex justify-center">
                                 <img
                                     src={item.image}
                                     alt={item.name}
-                                    className="w-24 h-24 object-cover"
+                                    className="w-24 h-24 object-cover rounded"
                                 />
                             </div>
                         </li>
@@ -201,7 +202,7 @@ function Cart({ initialOpen = false }: CartProps) {
                     <span className="text-xl font-bold" data-testid='cart-total'>${totalPrice.toFixed(2)}</span>
                 </div>
 
-                <button className="empty-cart-button text-white border-none px-7 py-3.5 rounded text-lg w-full mt-5 transition-opacity bg-red-500 cursor-pointer hover:opacity-90" onClick={() => emptyCart()}>Empty Cart</button>
+                <button className="empty-cart-button text-white border-none px-7 py-3.5 rounded text-lg w-full mt-5 transition-opacity bg-red-500 cursor-pointer hover:opacity-90" onClick={() => emptyCart()}>EMPTY CART</button>
 
                 <button
                     className={`place-order-button text-white border-none px-7 py-3.5 rounded text-lg w-full mt-5 transition-opacity ${items.length <= 0
