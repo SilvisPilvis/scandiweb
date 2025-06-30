@@ -1,9 +1,7 @@
 import ProductCard from '../components/ProductCard'
 import { useQuery } from '@tanstack/react-query'
 import { createLazyFileRoute, Link } from '@tanstack/react-router'
-import { useCart } from 'react-use-cart'
 import '../app.css'
-import CartIcon from '../icons/CartIcon'
 
 export const Route = createLazyFileRoute("/")({
     component: Index,
@@ -53,13 +51,6 @@ function Index() {
         queryFn: fetchProductsCards
     })
 
-    // const { data: categories, isLoading: categoriesLoading, error: categoriesError } = useQuery({
-    //     queryKey: ['categories'],
-    //     queryFn: fetchCategories
-    // })
-
-    const { addItem } = useCart();
-
     return (
         <>
             <h1 className="text-3xl font-bold text-center my-4">All Products</h1>
@@ -68,30 +59,14 @@ function Index() {
                 {error && <div>Error: {error.message}</div>}
                 {data &&
                     data.data.getProducts.map((product: any) => (
-                        <>
-                            <Link
-                                to="/product/$productId"
-                                key={product.id}
-                                params={{ productId: product.id }}
-                                data-testid={`product-${product.name.toLowerCase().replace(/ /g, '-')}`}
-                            >
-                                <ProductCard {...product} />
-                            </Link>
-                            {product.inStock === false ? (
-                                <button
-                                    onClick={() => addItem({id: product.id, name: product.name, price: product.prices[0].amount, image: product.gallery[0], attributes: product.attributes, brand: product.brand})}
-                                    data-testid='add-to-cart'
-                                    disabled
-                                    className="hidden"
-                                ><CartIcon /></button>
-                                ) : (
-                                <button
-                                onClick={() => addItem({id: product.id, name: product.name, price: product.prices[0].amount, image: product.gallery[0], attributes: product.attributes, brand: product.brand})}
-                                data-testid='add-to-cart'
-                                ><CartIcon /></button>
-                                )
-                            }
-                        </>
+                        <Link
+                            to="/product/$productId"
+                            key={product.id}
+                            params={{ productId: product.id }}
+                            data-testid={`product-${product.name.toLowerCase().replace(/ /g, '-')}`}
+                        >
+                            <ProductCard {...product} attributes={product.attributes} brand={product.brand} />
+                        </Link>
                     ))
                 }
             </main>

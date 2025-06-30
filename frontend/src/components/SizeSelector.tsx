@@ -12,12 +12,10 @@ const SizeSelector = ({sizes, test, name, selectedSize, onSizeChange}: {sizes: s
             data-testid={"product-attribute-" + name.toLowerCase() + "-" + test[index]}
             key={size}
             onClick={() => handleSizeClick(size)}
+            className="p-2 rounded-md cursor-pointer border border-gray-300 bg-white font-semibold"
             style={{
-              padding: '10px 20px',
-              border: '1px solid black',
               backgroundColor: selectedSize === size ? 'black' : 'white',
               color: selectedSize === size ? 'white' : 'black',
-              cursor: 'pointer',
             }}
           >
             {size}

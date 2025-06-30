@@ -1,17 +1,25 @@
 import { useCart } from 'react-use-cart'
 import { kebabCase } from 'lodash'
+import CartIcon from '../icons/CartIcon'
 
-const ProductCard = ({id, name, inStock, gallery, prices}: {id: string, name: string, inStock: boolean, gallery: string[], prices: any[]}) => {
+const ProductCard = ({id, name, inStock, gallery, prices, attributes, brand}: {id: string, name: string, inStock: boolean, gallery: string[], prices: any[], attributes?: any, brand?: string}) => {
   const { addItem } = useCart();
   return (
     <>
     {inStock ? (
     <div className="flex flex-col items-start justify-center gap-4 max-w-sm" data-testid={"product-" + kebabCase(name)}>
-        <img src={gallery[0]} alt={name} className="min-w-72 max-w-72 object-contain rounded-lg aspect-square" />
+        <div className="relative">
+          <img src={gallery[0]} alt={name} className="min-w-72 max-w-72 object-contain rounded-lg aspect-square" />
+          <button
+            onClick={() => addItem({id, name, price: prices[0].amount, image: gallery[0], attributes, brand})}
+            data-testid='add-to-cart'
+            className="absolute bottom-2 right-2 bg-green-500 rounded-md p-2 shadow-lg hover:bg-green-600 transition-colors"
+          >
+            <CartIcon />
+          </button>
+        </div>
         <h3 className="text-lg font-bold">{name}</h3>
         <p className="text-lg font-bold">{prices[0].currency.symbol}{prices[0].amount}</p>
-        <button onClick={() => addItem({id, name, price: prices[0].amount, image: gallery[0]})}>Add to cart</button>
-        {/* <div className="text-sm text-white">{parse(description)}</div> / */}
     </div>
     ) : (
         <div className="flex flex-col items-start justify-center gap-4 max-w-sm">

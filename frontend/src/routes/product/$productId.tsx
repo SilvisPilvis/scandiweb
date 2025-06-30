@@ -81,15 +81,6 @@ function Product() {
     })
 
     const { addItem } = useCart();
-    
-    // const { addItem, getItem } = useCart();
-    // const cartItem = getItem(productId) || null;
-    // console.log(cartItem);
-    // const cartQuantity = cartItem ? cartItem.quantity : 0;
-    // let originalStock = 0;
-    // if (data) {
-    //     originalStock = Number(data.data.getProduct.inStock);
-    // }
 
     const [selectedSize, setSelectedSize] = useState('S');
     const [isDisabled, setIsDisabled] = useState(false);
@@ -109,7 +100,6 @@ function Product() {
         {data &&
         <>
             <div className="flex flex-row gap-4 text-xl">
-                {/* <img src={data.data.getProduct.gallery[0]} alt={data.data.getProduct.name} /> */}
                 <Gallery images={data.data.getProduct.gallery} />
                 <div>
                 <p className="text-2xl font-bold">{data.data.getProduct.name}</p>
@@ -144,8 +134,6 @@ function Product() {
                     className="bg-green-500 text-white rounded-md p-2 mt-2"
                     data-testid='add-to-cart'
                     disabled={isDisabled}
-                    // disabled={originalStock - cartQuantity <= 0}
-                    // disabled={cartItem === null && data.data.getProduct.name.toLowerCase().includes('iphone')}
                     onClick={() => addItem({
                         id: data.data.getProduct.id,
                         name: data.data.getProduct.name,

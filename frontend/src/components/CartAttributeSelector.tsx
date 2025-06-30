@@ -46,12 +46,10 @@ const CartAttributeSelector: React.FC<CartAttributeSelectorProps> = ({
               key={option}
               onClick={() => setSelectedOption(option)}
               data-testid={`cart-item-attribute-${attributeKebab}-${optionKebab}${isSelected ? '-selected' : ''}`}
+              className='p-2 rounded-md cursor-pointer border border-gray-300 bg-white font-semibold'
               style={{
-                padding: '4px 4px',
-                border: '1px solid black',
                 backgroundColor: isSelected ? 'black' : 'white',
                 color: isSelected ? 'white' : 'black',
-                cursor: 'pointer',
               }}
             >
               {option}

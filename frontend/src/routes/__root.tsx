@@ -2,8 +2,8 @@ import { createRootRoute, Link, Outlet } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import { useCart } from 'react-use-cart'
 import CartIcon from '../icons/CartIcon'
+import CartEmpty from '../icons/CartEmpty'
 import { useState, useEffect } from 'react'
-// import SizeSelector from '../components/SizeSelector'
 import CartAttributeSelector from '../components/CartAttributeSelector'
 
 async function PlaceOrderMutation(items: string) {
@@ -59,8 +59,8 @@ function Cart({ initialOpen = false }: CartProps) {
 
     if (isEmpty && !isOpen)
         return (
-            <div data-testid='cart-btn' className='flex row m-6' onClick={() => setIsOpen(true)}>
-                <CartIcon />
+            <div data-testid='cart-btn' className='flex row' onClick={() => setIsOpen(true)}>
+                <CartEmpty />
             </div>
         );
 
@@ -84,7 +84,7 @@ function Cart({ initialOpen = false }: CartProps) {
     if (isEmpty && isOpen)
         return (
             <div data-testid="cart-overlay">
-                <div data-testid='cart-btn' className='flex row m-6' onClick={() => setIsOpen(false)}>
+                <div data-testid='cart-btn' className='flex row' onClick={() => setIsOpen(false)}>
                     <CartIcon />
                     <p>Your cart is empty</p>
                 </div>
