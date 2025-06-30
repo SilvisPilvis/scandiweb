@@ -76,7 +76,15 @@ function Product() {
         queryFn: () => fetchProduct(productId)
     })
 
-    const { addItem } = useCart();
+    const { addItem, getItem } = useCart();
+
+    const cartItem = getItem(productId) || null;
+    console.log(cartItem);
+    const cartQuantity = cartItem ? cartItem.quantity : 0;
+    let originalStock = 0;
+    if (data) {
+        originalStock = Number(data.data.getProduct.inStock);
+    }
 
     return (
       <div>
@@ -119,7 +127,7 @@ function Product() {
                 <button
                     className="bg-green-500 text-white rounded-md p-2 mt-2"
                     data-testid='add-to-cart'
-                    // disabled={data.data.getProduct.name.toLowerCase().includes("iphone") === true}
+                    disabled={originalStock - cartQuantity <= 0}
                     onClick={() => addItem({
                         id: data.data.getProduct.id,
                         name: data.data.getProduct.name,
