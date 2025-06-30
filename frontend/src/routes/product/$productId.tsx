@@ -82,16 +82,30 @@ function Product() {
 
     const { addItem } = useCart();
 
-    const [selectedSize, setSelectedSize] = useState('S');
-    const [isDisabled, setIsDisabled] = useState(false);
+    // State for each attribute's selected value
+    const [selectedAttributes, setSelectedAttributes] = useState<{ [key: string]: string }>({});
 
+    // Initialize state when product data loads
     useEffect(() => {
-        if (selectedSize === 'S') {
-            setIsDisabled(true);
-        } else {
-            setIsDisabled(false);
+        if (data && data.data.getProduct) {
+            const initial: { [key: string]: string } = {};
+            data.data.getProduct.attributes.forEach((attr: any) => {
+                initial[attr.id] = '';
+            });
+            setSelectedAttributes(initial);
         }
-    }, [selectedSize]); // Re-run when selectedSize changes
+    }, [data]);
+
+    // Handler for changing a specific attribute
+    const handleAttributeChange = (attrId: string, value: string) => {
+        setSelectedAttributes(prev => ({
+            ...prev,
+            [attrId]: value
+        }));
+    };
+
+    // Button is disabled if any attribute is not selected
+    const isDisabled = Object.values(selectedAttributes).some(val => !val);
 
     return (
       <div>
@@ -110,14 +124,14 @@ function Product() {
                         data.data.getProduct.attributes.map((attribute: any) => (
                             <div key={attribute.id} data-testid={"product-attribute-" + kebabCase(attribute.id)}>
                                 <p key={attribute.id}>{attribute.id}</p>
-                                <SizeSelector sizes={filterArrayString(attribute.items.map((item: any) => item.displayValue))} test={attribute.items.map((item: any) => item.value)} name={attribute.id} selectedSize={selectedSize} onSizeChange={setSelectedSize} />
+                                <SizeSelector sizes={filterArrayString(attribute.items.map((item: any) => item.displayValue))} test={attribute.items.map((item: any) => item.value)} name={attribute.id} selectedSize={selectedAttributes[attribute.id] || ''} onSizeChange={value => handleAttributeChange(attribute.id, value)} />
                             </div>
                         ))
                     ) : data.data.getProduct.brand.toLowerCase().includes('nike') ? (
                         data.data.getProduct.attributes.map((attribute: any) => (
                             <div key={attribute.id} data-testid={"product-attribute-" + kebabCase(attribute.id)}>
                                 <p key={attribute.id}>{attribute.id}</p>
-                                <SizeSelector sizes={filterArrayNumeric(attribute.items.map((item: any) => item.displayValue))} test={attribute.items.map((item: any) => item.value)} name={attribute.id}  selectedSize={selectedSize} onSizeChange={setSelectedSize} />
+                                <SizeSelector sizes={filterArrayNumeric(attribute.items.map((item: any) => item.displayValue))} test={attribute.items.map((item: any) => item.value)} name={attribute.id} selectedSize={selectedAttributes[attribute.id] || ''} onSizeChange={value => handleAttributeChange(attribute.id, value)} />
                             </div>
                         ))
                     ) : (
@@ -125,13 +139,13 @@ function Product() {
                             <div key={attribute.id} data-testid={"product-attribute-" + kebabCase(attribute.id)}>
                                 {/* The name of the attribute */}
                                 <p key={attribute.id}>{attribute.id}</p>
-                                <SizeSelector sizes={attribute.items.map((item: any) => item.displayValue)} test={attribute.items.map((item: any) => item.value)} name={attribute.id}  selectedSize={selectedSize} onSizeChange={setSelectedSize} />
+                                <SizeSelector sizes={attribute.items.map((item: any) => item.displayValue)} test={attribute.items.map((item: any) => item.value)} name={attribute.id} selectedSize={selectedAttributes[attribute.id] || ''} onSizeChange={value => handleAttributeChange(attribute.id, value)} />
                             </div>
                         ))
                     )}
                 </div>
                 <button
-                    className="bg-green-500 text-white rounded-md p-2 mt-2"
+                    className={`bg-green-500 text-white rounded-md p-2 mt-2 ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
                     data-testid='add-to-cart'
                     disabled={isDisabled}
                     onClick={() => addItem({

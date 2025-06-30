@@ -7,13 +7,13 @@ const ProductCard = ({id, name, inStock, gallery, prices, attributes, brand}: {i
   return (
     <>
     {inStock ? (
-    <div className="flex flex-col items-start justify-center gap-4 max-w-sm" data-testid={"product-" + kebabCase(name)}>
+    <div className="flex flex-col items-start justify-center gap-4 max-w-sm group" data-testid={"product-" + kebabCase(name)}>
         <div className="relative">
           <img src={gallery[0]} alt={name} className="min-w-72 max-w-72 object-contain rounded-lg aspect-square" />
           <button
             onClick={() => addItem({id, name, price: prices[0].amount, image: gallery[0], attributes, brand})}
             data-testid='add-to-cart'
-            className="absolute bottom-2 right-2 bg-green-500 rounded-md p-2 shadow-lg hover:bg-green-600 transition-colors"
+            className="absolute bottom-2 right-2 bg-green-500 rounded-md p-2 shadow-lg hover:bg-green-600 transition-colors opacity-0 group-hover:opacity-100 transition-opacity"
           >
             <CartIcon />
           </button>

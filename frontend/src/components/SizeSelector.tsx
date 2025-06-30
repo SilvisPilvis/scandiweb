@@ -16,6 +16,7 @@ const SizeSelector = ({sizes, test, name, selectedSize, onSizeChange}: {sizes: s
             style={{
               backgroundColor: selectedSize === size ? 'black' : 'white',
               color: selectedSize === size ? 'white' : 'black',
+              opacity: selectedSize === '' ? 0.7 : 1
             }}
           >
             {size}
