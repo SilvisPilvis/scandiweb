@@ -95,7 +95,7 @@ function Product() {
     const [isDisabled, setIsDisabled] = useState(false);
 
     useEffect(() => {
-        if (selectedSize !== 'Green') {
+        if (selectedSize === 'Cyan') {
             setIsDisabled(true);
         } else {
             setIsDisabled(false);
