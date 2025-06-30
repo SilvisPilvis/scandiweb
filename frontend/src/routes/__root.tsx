@@ -51,6 +51,12 @@ function Cart({ initialOpen = false }: CartProps) {
         }
     }, [totalUniqueItems]); // Re-run when totalUniqueItems changes
 
+    useEffect(() => {
+        if (isOpen && items.length === 0) {
+            setIsOpen(false);
+        }
+    }, [items]);
+
     // Calculate total price
     const totalPrice = items.reduce(
         (acc, item) => acc + (item.price ?? 0) * (item.quantity ?? 0),
@@ -99,7 +105,9 @@ function Cart({ initialOpen = false }: CartProps) {
             >
                 <div className="cart-header border-b border-dashed border-gray-300 pb-2.5 mb-5 flex row justify-between">
                     <h2 className="m-0 text-xl font-bold" data-testid='cart-total'>
-                        My Cart, {totalUniqueItems} {totalUniqueItems === 1 ? 'item' : 'items'}
+                        My Cart, {totalUniqueItems === 1 && items[0]?.quantity === 1
+                            ? '1 item'
+                            : `${items.reduce((acc, item) => acc + (item.quantity ?? 0), 0)} items`}
                     </h2>
                     <button className="p-2" onClick={() => setIsOpen(false)}>X</button>
                 </div>
