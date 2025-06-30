@@ -7,6 +7,8 @@ run `npm run build` for frontend
 populate the database with the file `file.sql` in the backend folder
 and run `php -S localhost:8000 -t backend/public`for backend
 
+The working build is availible at `https://scandiweb-ruddy.vercel.app/`
+
 # Add galery
 
 * [x] The cart overlay button shall be included in the header and visible on all pages
