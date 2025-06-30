@@ -80,11 +80,11 @@ function Product() {
 
     const cartItem = getItem(productId) || null;
     console.log(cartItem);
-    const cartQuantity = cartItem ? cartItem.quantity : 0;
-    let originalStock = 0;
-    if (data) {
-        originalStock = Number(data.data.getProduct.inStock);
-    }
+    // const cartQuantity = cartItem ? cartItem.quantity : 0;
+    // let originalStock = 0;
+    // if (data) {
+    //     originalStock = Number(data.data.getProduct.inStock);
+    // }
 
     return (
       <div>
