@@ -2,16 +2,18 @@ import ProductCard from '../components/ProductCard'
 import { useQuery } from '@tanstack/react-query'
 import { createLazyFileRoute, Link } from '@tanstack/react-router'
 import '../app.css'
+import logger from '../components/logger'
 
 export const Route = createLazyFileRoute("/all")({
     component: Index,
 })
 
 async function fetchProductsCards() {
-    const response = await fetch(import.meta.env.VITE_API_URL, {
-        method: 'POST',
-        body: JSON.stringify({
-            query: `
+    try {
+        const response = await fetch(import.meta.env.VITE_API_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                query: `
         {
             getProducts {
                 id
@@ -41,8 +43,12 @@ async function fetchProductsCards() {
             }
         }
         `})
-    })
-    return response.json()
+        })
+        return response.json()
+    } catch (error) {
+        logger.error('Failed to fetch product cards', error)
+        throw error
+    }
 }
 
 function Index() {

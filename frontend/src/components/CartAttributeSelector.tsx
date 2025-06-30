@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
 import { kebabCase } from 'lodash';
 
 interface CartAttributeSelectorProps {
   attributeName: string;
   options: string[];
   brand: string
+  selectedValue: string
+  onChange: (value: string) => void;
 }
 
 function filterArrayNumeric(arr: string[]): string[] {
@@ -24,10 +25,11 @@ function filterArrayString(arr: string[]): string[] {
 const CartAttributeSelector: React.FC<CartAttributeSelectorProps> = ({
   attributeName,
   options,
-  brand
+  brand,
+  selectedValue,
+  onChange
 }) => {
   const attributeKebab = kebabCase(attributeName);
-  const [selectedOption, setSelectedOption] = useState(options[0] || '');
 
   if (brand.toLowerCase().includes("goose")) {
     options = filterArrayString(options)
@@ -40,11 +42,11 @@ const CartAttributeSelector: React.FC<CartAttributeSelectorProps> = ({
       <div style={{ display: 'flex', gap: '10px' }}>
         {options.map((option) => {
           const optionKebab = kebabCase(option);
-          const isSelected = selectedOption === option;
+          const isSelected = selectedValue === option;
           return (
             <button
               key={option}
-              onClick={() => setSelectedOption(option)}
+              onClick={() => onChange(option)}
               data-testid={`cart-item-attribute-${attributeKebab}-${optionKebab}${isSelected ? '-selected' : ''}`}
               className='p-2 rounded-md cursor-pointer border border-gray-300 bg-white font-semibold'
               style={{

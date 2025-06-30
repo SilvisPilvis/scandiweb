@@ -1,13 +1,16 @@
 import { createRootRoute, Link, Outlet } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
-import { useCart } from 'react-use-cart'
+import { useCart, type Item } from 'react-use-cart'
 import CartIcon from '../icons/CartIcon'
 import CartEmpty from '../icons/CartEmpty'
 import { useState, useEffect } from 'react'
 import CartAttributeSelector from '../components/CartAttributeSelector'
+import logger from '../components/logger'
 
-async function PlaceOrderMutation(items: string) {
-    console.log(items);
+async function PlaceOrderMutation(items: Item[]) {
+    const modifiedItems = items.map(({ allAttributes, ...rest }) => rest);
+    logger.info('Items to be placed in the order');
+    // logger.info(JSON.stringify(modifiedItems));
     const response = await fetch(import.meta.env.VITE_API_URL, {
         method: 'POST',
         body: JSON.stringify({
@@ -20,16 +23,16 @@ async function PlaceOrderMutation(items: string) {
             `,
             variables: {
                 items: {
-                    items: items
+                    items: modifiedItems
                 }
             }
         })
     })
-    console.log(response.json());
-    // return response.json()
+    // logger.info(response.json())
+    return response.json()
 }
 
-async function PlaceOrder(items: string) {
+async function PlaceOrder(items: Item[]) {
     await PlaceOrderMutation(items);
     alert("Order placed");
 }
@@ -38,9 +41,13 @@ interface CartProps {
     initialOpen?: boolean; // New prop to control initial open state
 }
 
+export function getCartItemId(productId: string, attributes: Record<string, string>) {
+    // Create a string that uniquely identifies the combination
+    return productId + '-' + Object.entries(attributes).sort().map(([k, v]) => `${k}:${v}`).join('|');
+}
+
 function Cart({ initialOpen = false }: CartProps) {
-    const { isEmpty, totalUniqueItems, items, updateItemQuantity, removeItem, emptyCart } =
-    useCart();
+    const { isEmpty, totalUniqueItems, items, updateItemQuantity, removeItem, emptyCart, updateItem } = useCart();
 
     const [isOpen, setIsOpen] = useState(initialOpen);
 
@@ -48,6 +55,8 @@ function Cart({ initialOpen = false }: CartProps) {
     useEffect(() => {
         if (!isEmpty && !isOpen) {
             setIsOpen(true);
+            logger.info('Cart opened')
+            logger.info(items)
         }
     }, [totalUniqueItems]); // Re-run when totalUniqueItems changes
 
@@ -62,6 +71,19 @@ function Cart({ initialOpen = false }: CartProps) {
         (acc, item) => acc + (item.price ?? 0) * (item.quantity ?? 0),
         0,
     );
+
+    // Handler to update attribute value for a cart item
+    const handleAttributeChange = (itemId: string, attributeId: string, newValue: string) => {
+        const item = items.find((i) => i.id === itemId);
+        if (!item) return;
+        updateItem(itemId, {
+            ...item,
+            attributes: {
+                ...item.attributes,
+                [attributeId]: newValue,
+            },
+        });
+    };
 
     if (isEmpty && !isOpen)
         return (
@@ -121,9 +143,10 @@ function Cart({ initialOpen = false }: CartProps) {
                             <div className="item-details flex-grow pr-2.5">
                                 <h3 className="m-0 text-lg">{item.name}</h3>
                                 <p className="my-1 text-xl">${(item.price ?? 0).toFixed(2)}</p>
-                                {item.attributes && item.attributes.length > 0 && (
+                                {item.attributes && Object.keys(item.attributes).length > 0 && (
                                     <div className="flex flex-col gap-1">
-                                        {item.attributes.map((attribute: any) => (
+                                        <p>Attributes:</p>
+                                        {item.allAttributes.map((attribute: any) => (
                                             <div key={attribute.id} data-testid={"cart-attribute-" + attribute.id}>
                                                 <p className="font-semibold">{attribute.id}</p>
                                                 {attribute.items && attribute.items.length > 0 && (
@@ -131,6 +154,8 @@ function Cart({ initialOpen = false }: CartProps) {
                                                         options={attribute.items.map((item: any) => item.displayValue)}
                                                         attributeName={attribute.id}
                                                         brand={item.brand}
+                                                        selectedValue={item.attributes[attribute.id]}
+                                                        onChange={(newValue) => handleAttributeChange(item.id, attribute.id, newValue)}
                                                     />
                                                 )}
                                             </div>
@@ -176,6 +201,8 @@ function Cart({ initialOpen = false }: CartProps) {
                     <span className="text-xl font-bold" data-testid='cart-total'>${totalPrice.toFixed(2)}</span>
                 </div>
 
+                <button className="empty-cart-button text-white border-none px-7 py-3.5 rounded text-lg w-full mt-5 transition-opacity bg-red-500 cursor-pointer hover:opacity-90" onClick={() => emptyCart()}>Empty Cart</button>
+
                 <button
                     className={`place-order-button text-white border-none px-7 py-3.5 rounded text-lg w-full mt-5 transition-opacity ${items.length <= 0
                             ? 'bg-gray-400 cursor-not-allowed opacity-60'
@@ -183,7 +210,7 @@ function Cart({ initialOpen = false }: CartProps) {
                         }`}
                     onClick={() => {
                         if (items.length > 0) {
-                            PlaceOrder(JSON.stringify(items));
+                            PlaceOrder(items);
                             emptyCart();
                         }
                     }}

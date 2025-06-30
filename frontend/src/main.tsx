@@ -9,6 +9,7 @@ import { CartProvider } from 'react-use-cart'
 
 // Import the generated route tree
 import { routeTree } from './routeTree.gen'
+import logger from './components/logger'
 
 // Create a new router instance
 const router = createRouter({ routeTree })
@@ -21,6 +22,8 @@ declare module '@tanstack/react-router' {
 }
 
 const queryClient = new QueryClient()
+
+logger.info('App started')
 
 createRoot(document.getElementById('root')!).render(
     <StrictMode>
