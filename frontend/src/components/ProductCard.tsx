@@ -8,7 +8,7 @@ const ProductCard = ({id, name, inStock, gallery, prices, attributes, brand}: {i
   return (
     <>
     {inStock ? (
-    <div className="flex flex-col items-start justify-center gap-4 max-w-sm group" data-testid={"product-" + kebabCase(name)}>
+    <div className="flex flex-col items-start justify-center gap-4 max-w-sm group bg-slate-700 rounded-lg p-4" data-testid={"product-" + kebabCase(name)}>
         <div className="relative">
           <img src={gallery[0]} alt={name} className="min-w-72 max-w-72 object-contain rounded-lg aspect-square" />
           <button
@@ -37,7 +37,7 @@ const ProductCard = ({id, name, inStock, gallery, prices, attributes, brand}: {i
         <p className="text-lg font-bold">{prices[0].currency.symbol}{prices[0].amount}</p>
     </div>
     ) : (
-        <div className="flex flex-col items-start justify-center gap-4 max-w-sm">
+        <div className="flex flex-col items-start justify-center gap-4 max-w-sm bg-slate-700 rounded-lg p-4">
             <div className="relative">
                 <img src={gallery[0]} alt={name} className="min-w-72 max-w-72 object-contain rounded-lg aspect-square opacity-50" />
                 <p className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-2xl font-bold text-red-700 w-full text-center">
