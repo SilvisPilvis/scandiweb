@@ -1,6 +1,7 @@
 import { useCart } from 'react-use-cart'
 import { kebabCase } from 'lodash'
 import CartIcon from '../icons/CartIcon'
+import { getCartItemId } from '../routes/__root'
 
 const ProductCard = ({id, name, inStock, gallery, prices, attributes, brand}: {id: string, name: string, inStock: boolean, gallery: string[], prices: any[], attributes?: any, brand?: string}) => {
   const { addItem } = useCart();
@@ -11,7 +12,21 @@ const ProductCard = ({id, name, inStock, gallery, prices, attributes, brand}: {i
         <div className="relative">
           <img src={gallery[0]} alt={name} className="min-w-72 max-w-72 object-contain rounded-lg aspect-square" />
           <button
-            onClick={() => addItem({id, name, price: prices[0].amount, image: gallery[0], attributes, brand})}
+            onClick={() => addItem({
+                id: getCartItemId(id, attributes?.reduce((acc: any, attr: any) => ({
+                    ...acc,
+                    [attr.id]: attr.items[0]?.displayValue
+                }), {})),
+                name, 
+                price: prices[0].amount, 
+                image: gallery[0], 
+                attributes: attributes?.reduce((acc: any, attr: any) => ({
+                    ...acc,
+                    [attr.id]: attr.items[0]?.displayValue
+                }), {}), 
+                allAttributes: attributes,
+                brand
+            })}
             data-testid='add-to-cart'
             className="absolute bottom-2 right-2 bg-green-500 rounded-md p-2 shadow-lg hover:bg-green-600 transition-colors opacity-0 group-hover:opacity-100 transition-opacity"
           >

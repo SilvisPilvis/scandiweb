@@ -6,6 +6,8 @@ import SizeSelector from '../../components/SizeSelector'
 import Gallery from '../../components/Gallery'
 import { kebabCase } from 'lodash'
 import { useState, useEffect } from 'react'
+import logger from '../../components/logger'
+import { getCartItemId } from '../__root'
 
 export const Route = createFileRoute('/product/$productId')({
   component: Product,
@@ -85,6 +87,11 @@ function Product() {
     // State for each attribute's selected value
     const [selectedAttributes, setSelectedAttributes] = useState<{ [key: string]: string }>({});
 
+    if (data && data.data.getProduct) {
+        logger.info('Product attributes loaded')
+        logger.info(data.data.getProduct.attributes)
+    }
+    
     // Initialize state when product data loads
     useEffect(() => {
         if (data && data.data.getProduct) {
@@ -149,11 +156,12 @@ function Product() {
                     data-testid='add-to-cart'
                     disabled={isDisabled}
                     onClick={() => addItem({
-                        id: data.data.getProduct.id,
+                        id: getCartItemId(data.data.getProduct.id, selectedAttributes),
                         name: data.data.getProduct.name,
                         price: data.data.getProduct.prices[0].amount,
                         image: data.data.getProduct.gallery[0],
-                        attributes: data.data.getProduct.attributes,
+                        attributes: selectedAttributes,
+                        allAttributes: data.data.getProduct.attributes,
                         brand: data.data.getProduct.brand
                     })}
                 >
