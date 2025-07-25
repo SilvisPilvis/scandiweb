@@ -3,7 +3,7 @@ import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import { useCart, type Item } from 'react-use-cart'
 import CartIcon from '../icons/CartIcon'
 import CartEmpty from '../icons/CartEmpty'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import CartAttributeSelector from '../components/CartAttributeSelector'
 import logger from '../components/logger'
 
@@ -33,7 +33,13 @@ async function PlaceOrderMutation(items: Item[]) {
 }
 
 async function PlaceOrder(items: Item[]) {
-    await PlaceOrderMutation(items);
+    let res = await PlaceOrderMutation(items);
+    // console.log("Response:", res)
+    if (res.errors) {
+        alert("Error placing order");
+        console.error("Error:", res.errors[0].message)
+        return;
+    }
     alert("Order placed");
 }
 
@@ -47,12 +53,17 @@ export function getCartItemId(productId: string, attributes: Record<string, stri
 }
 
 function Cart({ initialOpen = false }: CartProps) {
-    const { isEmpty, totalUniqueItems, items, updateItemQuantity, removeItem, emptyCart, updateItem } = useCart();
+    const { isEmpty, totalUniqueItems, items, updateItemQuantity, removeItem, emptyCart } = useCart();
 
     const [isOpen, setIsOpen] = useState(initialOpen);
+    const isFirstRender = useRef(true); // Track first render
 
     // Effect to open cart when totalUniqueItems changes (i.e., an item is added)
     useEffect(() => {
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+            return; // Skip effect on first render
+        }
         if (!isEmpty && !isOpen) {
             setIsOpen(true);
             logger.info('Cart opened')
@@ -64,26 +75,13 @@ function Cart({ initialOpen = false }: CartProps) {
         if (isOpen && items.length === 0) {
             setIsOpen(false);
         }
-    }, [items]);
+    }, [items, isOpen]);
 
     // Calculate total price
     const totalPrice = items.reduce(
         (acc, item) => acc + (item.price ?? 0) * (item.quantity ?? 0),
         0,
     );
-
-    // Handler to update attribute value for a cart item
-    const handleAttributeChange = (itemId: string, attributeId: string, newValue: string) => {
-        const item = items.find((i) => i.id === itemId);
-        if (!item) return;
-        updateItem(itemId, {
-            ...item,
-            attributes: {
-                ...item.attributes,
-                [attributeId]: newValue,
-            },
-        });
-    };
 
     if (isEmpty && !isOpen)
         return (
@@ -118,6 +116,14 @@ function Cart({ initialOpen = false }: CartProps) {
                 </div>
             </div>
         );
+
+    console.log("First Render:", isFirstRender.current)
+
+    // If cart is not empty and is open and is first render, close it
+    if ((isOpen && !isEmpty) && isFirstRender.current) {
+        setIsOpen(false);
+        console.log("Should not be visible")
+    }
 
     return (
         <>

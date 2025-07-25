@@ -173,7 +173,8 @@ class ProductController extends Controller
                 }
             }
         }
-        $stmt->close();
+        // Setting this to null wil explicitly free the memory
+        // $stmt->close();
         return $products;
     }
 
@@ -216,7 +217,6 @@ class ProductController extends Controller
                 foreach ($data['gallery'] as $imageUrl) {
                     $galleryStmt->execute([$productId, $imageUrl]);
                 }
-                $galleryStmt->close();
             }
 
             // 3. Create prices (delegating to PriceModel)
@@ -244,7 +244,6 @@ class ProductController extends Controller
                             "INSERT INTO product_attribute_sets (product_id, attribute_set_id) VALUES (?, ?)"
                         );
                         $linkStmt->execute([$productId, $attributeSetId]);
-                        $linkStmt->close();
                     }
                 }
             }
