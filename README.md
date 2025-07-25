@@ -9,31 +9,47 @@ and run `php -S localhost:8000 -t backend/public`for backend
 
 The working build is availible at `https://scandiweb-ruddy.vercel.app/`
 
-# Add galery
+Fixes:
+- [x] Dont commit vendor directory
+- [x] Dont commit `.env` files
+- [x] Remove unused mutations and queries
+- [x] Use PDO insted of Mysqli
+- [x] Cant add out of stock items
+- [x] Replace color attribute with colored button
+- [x] Cant change attributes in cart view
+- [x] Reloading while on product page returns an error? (Doesn't for me and vercel)
+- [ ] After reloading while cart isnt empty the cart overlay is open but should be closed. only open when adding product
+- [ ] Order placed successfully shown even if an error gets returned
+- [ ] Use models
+- [ ] Fetch categories dynamically from the API  
+- [ ] Remove any separate GraphQL queries for individual categories  
+- [ ] Eliminate dedicated pages per category; implement dynamic routing/loading  
+- [ ] Closer to Figma design
 
-* [x] The cart overlay button shall be included in the header and visible on all pages
-* [x] The button element must have attribute data-testid='cart-btn'
-* [x] Item count bubble Shall be visible on the cart overlay button only if there are products in the cart
-* [x] If only one item is in the cart, it should be shown as 1 Item . If 2 or more plural forms should be used: X Items
-* [x] Placeorder has to perform respective GraphQL mutation that as a result will create a new order in DB
-* [x] Once an order is placed, the cart should be emptied
-* [x] If a cart is empty the button shall be greyed out and disabled
-* [x] When the cart overlay is open the whole page except the header shall be greyed out. Refer to designs for a visual example
-* [x] The cart doesn’t need to be saved and doesn’t need to be persistent, it should only be persistent through a single-user session at a minimum. This means saving it in the frontend states and local storage is enough
-* [x] Category link must have attribute data-testid='category-link'
-* [x] Active category link must have attribute data-testid='active-category-link'
-* [x] Container of the cart item attribute must have attribute data-testid='cart-item-attribute-${attribute name in kebab case}'
-* [x] Cart item attribute option must have attribute data-testid='cart-item-attribute-${attribute name in kebab case}-${attribute name in kebab case}'
-* [x] Selected cart item attribute option must have attribute data-testid='cart-item-attribute-${attribute name in kebab case}-${attribute name in kebab case}-selected'
-* [x] Button to decrease quantity must have attribute data-testid='cart-item-amount-decrease'
-* [x] Button to increase quantity must have attribute data-testid='cart-item-amount-increase'
-* [x] Cart item amount indicator must have attribute data-testid='cart-item-amount'
-* [x] Cart total element must have attribute data-testid='cart-total'
-* [x] Product card must have attribute data-testid='product-${product name in kebab case}'
-* [x] Attribute container must have attribute data-testid='product-attribute-${attribute in kebab case}'
-* [x] Gallery must have attribute data-testid='product-gallery'
-* [x] Product description must have attribute data-testid='product-description'
-* [x] Add to cart button must have attribute data-testid='add-to-cart'
+Original TODO:
+- [x] The cart overlay button shall be included in the header and visible on all pages
+- [x] The button element must have attribute data-testid='cart-btn'
+- [x] Item count bubble Shall be visible on the cart overlay button only if there are products in the cart
+- [x] If only one item is in the cart, it should be shown as 1 Item . If 2 or more plural forms should be used: X Items
+- [x] Placeorder has to perform respective GraphQL mutation that as a result will create a new order in DB
+- [x] Once an order is placed, the cart should be emptied
+- [x] If a cart is empty the button shall be greyed out and disabled
+- [x] When the cart overlay is open the whole page except the header shall be greyed out. Refer to designs for a visual example
+- [x] The cart doesn’t need to be saved and doesn’t need to be persistent, it should only be persistent through a single-user session at a minimum. This means saving it in the frontend states and local storage is enough
+- [x] Category link must have attribute data-testid='category-link'
+- [x] Active category link must have attribute data-testid='active-category-link'
+- [x] Container of the cart item attribute must have attribute data-testid='cart-item-attribute-${attribute name in kebab case}'
+- [x] Cart item attribute option must have attribute data-testid='cart-item-attribute-${attribute name in kebab case}-${attribute name in kebab case}'
+- [x] Selected cart item attribute option must have attribute data-testid='cart-item-attribute-${attribute name in kebab case}-${attribute name in kebab case}-selected'
+- [x] Button to decrease quantity must have attribute data-testid='cart-item-amount-decrease'
+- [x] Button to increase quantity must have attribute data-testid='cart-item-amount-increase'
+- [x] Cart item amount indicator must have attribute data-testid='cart-item-amount'
+- [x] Cart total element must have attribute data-testid='cart-total'
+- [x] Product card must have attribute data-testid='product-${product name in kebab case}'
+- [x] Attribute container must have attribute data-testid='product-attribute-${attribute in kebab case}'
+- [x] Gallery must have attribute data-testid='product-gallery'
+- [x] Product description must have attribute data-testid='product-description'
+- [x] Add to cart button must have attribute data-testid='add-to-cart'
 
 # PSR-1
 

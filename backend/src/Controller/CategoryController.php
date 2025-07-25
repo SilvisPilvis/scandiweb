@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Model;
+namespace App\Controller;
 
-class CategoryModel extends Model
+class CategoryController extends Controller
 {
     private $_id;
     private $_name;
@@ -48,15 +48,9 @@ class CategoryModel extends Model
     public static function findById($id, $conn)
     {
         $stmt = $conn->prepare("SELECT * FROM categories WHERE id = ?");
-        $stmt->bind_param('i', $id);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $category = $result->fetch_assoc(); // fetch the data, fam
-        $stmt->close();
-
-        // Or return the whole row if you want everything
+        $stmt->execute([$id]);
+        $category = $stmt->fetch(\PDO::FETCH_ASSOC);
         return $category;
-        // return null; // Or handle not found case as you like
     }
 
     public static function create($data, $conn)
@@ -75,19 +69,15 @@ class CategoryModel extends Model
 
     public static function update($id, $data, $conn)
     {
-        $result = $conn->prepare("UPDATE categories SET name = ? WHERE id = ?");
-        $result->bind_param('si', $data['name'], $id);
-        $result->execute();
-        $result->close();
-        return $result;
+        $stmt = $conn->prepare("UPDATE categories SET name = ? WHERE id = ?");
+        $stmt->execute([$data['name'], $id]);
+        return $stmt;
     }
 
     public static function delete($id, $conn)
     {
-        $result = $conn->prepare("DELETE FROM categories WHERE id = ?");
-        $result->bind_param('i', $id);
-        $result->execute();
-        $result->close();
-        return $result;
+        $stmt = $conn->prepare("DELETE FROM categories WHERE id = ?");
+        $stmt->execute([$id]);
+        return $stmt;
     }
 }

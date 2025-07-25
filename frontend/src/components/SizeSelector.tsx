@@ -4,6 +4,8 @@ const SizeSelector = ({sizes, test, name, selectedSize, onSizeChange}: {sizes: s
     onSizeChange(size);
   };
 
+  const isHexColor = (str: string) => /^#([0-9A-Fa-f]{3}){1,2}$/.test(str);
+
   return (
     <div>
       <div style={{ display: 'flex', gap: '10px' }}>
@@ -14,9 +16,15 @@ const SizeSelector = ({sizes, test, name, selectedSize, onSizeChange}: {sizes: s
             onClick={() => handleSizeClick(size)}
             className="p-2 rounded-md cursor-pointer border border-gray-300 bg-white font-semibold"
             style={{
-              backgroundColor: selectedSize === size ? 'black' : 'white',
-              color: selectedSize === size ? 'white' : 'black',
-              opacity: selectedSize === '' ? 0.7 : 1
+              backgroundColor: isHexColor(test[index])
+                ? test[index]
+                : (selectedSize === size ? 'black' : 'white'),
+              color: isHexColor(test[index])
+                ? ((test[index].toLowerCase() === '#000' || test[index].toLowerCase() === '#000000') ? 'white' : 'black')
+                : (selectedSize === size ? 'white' : 'black'),
+              opacity: isHexColor(test[index])
+                ? (selectedSize === size ? 1 : 0.5)
+                : (selectedSize === '' ? 0.7 : 1)
             }}
           >
             {size}

@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Model;
+namespace App\Controller;
 
-class AttributeModel extends Model
+class AttributeController extends Controller
 {
     public static function findAll($conn)
     {
@@ -34,25 +34,18 @@ class AttributeModel extends Model
     public static function findById($id, $conn)
     {
         $stmt = $conn->prepare("SELECT * FROM attributes WHERE id = ?");
-        $stmt->bind_param('i', $id);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $attribute = $result->fetch_assoc();
-        $stmt->close();
+        $stmt->execute([$id]);
+        $attribute = $stmt->fetch(\PDO::FETCH_ASSOC);
         $attribute['displayValue'] = $attribute['display_value'];
         unset($attribute['display_value']);
-
         return $attribute;
     }
 
     public static function create($data, $conn)
     {
-        $result = $conn->prepare("INSERT INTO attributes (display_value, value) VALUES (?, ?)");
-        $result->bind_param('ss', $data['displayValue'], $data['value']);
-        $result->execute();
-        $insert_id = $result->insert_id;
-        $result->close();
-
+        $stmt = $conn->prepare("INSERT INTO attributes (display_value, value) VALUES (?, ?)");
+        $stmt->execute([$data['displayValue'], $data['value']]);
+        $insert_id = $conn->lastInsertId();
         if ($insert_id) {
             return self::findById($insert_id, $conn);
         }
@@ -61,19 +54,15 @@ class AttributeModel extends Model
 
     public static function update($id, $data, $conn)
     {
-        $result = $conn->prepare("UPDATE attributes SET display_value = ?, value = ? WHERE id = ?");
-        $result->bind_param('ssi', $data['displayValue'], $data['value'], $id);
-        $result->execute();
-        $result->close();
-        return $result;
+        $stmt = $conn->prepare("UPDATE attributes SET display_value = ?, value = ? WHERE id = ?");
+        $stmt->execute([$data['displayValue'], $data['value'], $id]);
+        return $stmt;
     }
 
     public static function delete($id, $conn)
     {
-        $result = $conn->prepare("DELETE FROM attributes WHERE id = ?");
-        $result->bind_param('i', $id);
-        $result->execute();
-        $result->close();
-        return $result;
+        $stmt = $conn->prepare("DELETE FROM attributes WHERE id = ?");
+        $stmt->execute([$id]);
+        return $stmt;
     }
 }

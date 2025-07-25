@@ -13,7 +13,7 @@
  * @link        None
  */
 
-namespace App\Model;
+namespace App\Controller;
 
 use App\Database\Database;
 use App\Model\AttributeModel;
@@ -33,7 +33,7 @@ use App\Packages\Cuid\Cuid;
  * @link     None
  */
 
-class ProductModel extends Model
+class ProductController extends Controller
 {
     // Instance properties (optional if you mainly use static methods returning arrays)
     private $_id;
@@ -94,10 +94,8 @@ class ProductModel extends Model
     {
         // 1. Fetch main product data
         $stmt = $conn->prepare("SELECT * FROM products WHERE id = ?");
-        $stmt->bind_param('s', $id);
-        $stmt->execute();
-        $productData = $stmt->get_result()->fetch_assoc();
-        $stmt->close();
+        $stmt->execute([$id]);
+        $productData = $stmt->fetch(\PDO::FETCH_ASSOC);
 
         if (!$productData) {
             return null;
@@ -106,7 +104,7 @@ class ProductModel extends Model
         // 2. Fetch category (assuming CategoryModel::findById exists)
         if (!empty($productData['category_id'])) {
             // Assuming CategoryModel::findById returns an array like {name: "Name"}
-            $categoryDetails = CategoryModel::findById($productData['category_id'], $conn);
+            $categoryDetails = CategoryController::findById($productData['category_id'], $conn);
             $productData['category'] = $categoryDetails;
         } else {
             $productData['category'] = null; // Or handle as error
@@ -114,19 +112,16 @@ class ProductModel extends Model
 
         // 3. Fetch gallery images
         $galleryStmt = $conn->prepare("SELECT image_url FROM product_gallery_images WHERE product_id = ?");
-        $galleryStmt->bind_param('s', $id);
-        $galleryStmt->execute();
-        $galleryResult = $galleryStmt->get_result();
+        $galleryStmt->execute([$id]);
         $gallery = [];
-        while ($row = $galleryResult->fetch_assoc()) {
+        while ($row = $galleryStmt->fetch(\PDO::FETCH_ASSOC)) {
             $gallery[] = $row['image_url'];
         }
         $productData['gallery'] = $gallery;
-        $galleryStmt->close();
 
         // 4. Fetch prices (assuming PriceModel::findByProductId exists and returns structured price data)
         // PriceModel::findByProductId should handle currency object construction
-        $productData['prices'] = PriceModel::findByProductId($id, $conn);
+        $productData['prices'] = PriceController::findByProductId($id, $conn);
 
 
         // 5. Fetch attribute sets and their items
@@ -137,16 +132,13 @@ class ProductModel extends Model
              JOIN product_attribute_sets pas ON aset.id = pas.attribute_set_id
              WHERE pas.product_id = ?"
         );
-        $asStmt->bind_param('s', $id);
-        $asStmt->execute();
-        $asResult = $asStmt->get_result();
-        while ($asRow = $asResult->fetch_assoc()) {
+        $asStmt->execute([$id]);
+        while ($asRow = $asStmt->fetch(\PDO::FETCH_ASSOC)) {
             $currentSet = $asRow;
-            $currentSet['items'] = AttributeSetModel::findItemsBySetId($asRow['id'], $conn); // Assumes this method exists
+            $currentSet['items'] = AttributeSetController::findItemsBySetId($asRow['id'], $conn); // Assumes this method exists
             $attributeSets[] = $currentSet;
         }
         $productData['attributes'] = $attributeSets;
-        $asStmt->close();
 
         // Ensure inStock is boolean for GraphQL
         $productData['inStock'] = (bool)$productData['in_stock'];
@@ -164,16 +156,15 @@ class ProductModel extends Model
             JOIN categories c ON p.category_id = c.id
             WHERE c.name = ?"
         );
-        $stmt->bind_param('s', $category);
-        $stmt->execute();
-        $result = $stmt->get_result();
+        $stmt->execute([$category]);
+        $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
         if ($result === false) {
             error_log("Database error in ProductModel::findByCategory (fetching IDs): " . $conn->error);
             throw new \RuntimeException("Database error fetching product IDs by category.");
         }
 
-        while ($row = $result->fetch_assoc()) {
+        foreach ($result as $row) {
             if (isset($row['id'])) {
                 // For each product ID, use findById to get the full product details
                 $product = self::findById($row['id'], $conn);
@@ -205,20 +196,17 @@ class ProductModel extends Model
                  VALUES (?, ?, ?, ?, ?, ?)"
             );
             // 's' for id, 's' for name, 'i' for in_stock, 's' for description, 's' for category_id, 's' for brand
-            $stmt->bind_param(
-                'ssisss',
+            $stmt->execute([
                 $productId,
                 $data['name'],
                 $inStockDb,
                 $data['description'],
                 $data['category'], // This is category_id
                 $data['brand']
-            );
-            $stmt->execute();
-            if ($stmt->affected_rows === 0) {
+            ]);
+            if ($stmt->rowCount() === 0) {
                 throw new Exception("Failed to create product main entry.");
             }
-            $stmt->close();
 
             // 2. Insert gallery images
             if (!empty($data['gallery']) && is_array($data['gallery'])) {
@@ -226,8 +214,7 @@ class ProductModel extends Model
                     "INSERT INTO product_gallery_images (product_id, image_url) VALUES (?, ?)"
                 );
                 foreach ($data['gallery'] as $imageUrl) {
-                    $galleryStmt->bind_param('ss', $productId, $imageUrl);
-                    $galleryStmt->execute();
+                    $galleryStmt->execute([$productId, $imageUrl]);
                 }
                 $galleryStmt->close();
             }
@@ -239,7 +226,7 @@ class ProductModel extends Model
                 foreach ($data['prices'] as $priceInput) {
                     // PriceModel::create needs to be adapted to take product_id
                     // and the $priceInput should contain 'amount' and 'currency' (object)
-                    PriceModel::create($priceInput, $productId, $conn);
+                    PriceController::create($priceInput, $productId, $conn);
                 }
             }
 
@@ -249,15 +236,14 @@ class ProductModel extends Model
             if (!empty($data['attributes']) && is_array($data['attributes'])) {
                 foreach ($data['attributes'] as $attributeSetInput) {
                     // AttributeSetModel::create should create the set and its items, returning the set ID or full set object
-                    $createdAttributeSet = AttributeSetModel::create($attributeSetInput, $conn);
+                    $createdAttributeSet = AttributeSetController::create($attributeSetInput, $conn);
                     $attributeSetId = is_array($createdAttributeSet) ? $createdAttributeSet['id'] : $createdAttributeSet; // Adjust based on what AttributeSetModel::create returns
 
                     if ($attributeSetId) {
                         $linkStmt = $conn->prepare(
                             "INSERT INTO product_attribute_sets (product_id, attribute_set_id) VALUES (?, ?)"
                         );
-                        $linkStmt->bind_param('ss', $productId, $attributeSetId);
-                        $linkStmt->execute();
+                        $linkStmt->execute([$productId, $attributeSetId]);
                         $linkStmt->close();
                     }
                 }
@@ -278,44 +264,36 @@ class ProductModel extends Model
 
     public static function update($id, $data, $conn)
     {
-        $result = $conn->prepare("UPDATE products SET name = ?, in_stock = ?, description = ?, category_id = ?, brand = ? WHERE id = ?");
-        $result->bind_param('sissss', 
+        $stmt = $conn->prepare("UPDATE products SET name = ?, in_stock = ?, description = ?, category_id = ?, brand = ? WHERE id = ?");
+        $stmt->execute([
             $data['name'], 
             $data['inStock'] ? 1 : 0, 
             $data['description'], 
             $data['category'], 
             $data['brand'], 
             $id
-        );
-        $result->execute();
-        $result->close();
-        return $result;
+        ]);
+        return $stmt;
     }
 
     public static function findOrderById($id, $conn) {
         $stmt = $conn->prepare("SELECT * FROM orders WHERE id = ?");
-        $stmt->bind_param('i', $id);
-        $stmt->execute();
-        $order = $stmt->get_result()->fetch_assoc();
-        $stmt->close();
+        $stmt->execute([$id]);
+        $order = $stmt->fetch(\PDO::FETCH_ASSOC);
         return $order;
     }
 
     public static function create_order($conn, $data) {
-        $result = $conn->prepare("INSERT INTO orders (items) VALUES(?)");
-        $result->bind_param('s', $data['items']);
-        $result->execute();
-        $orderId = $result->insert_id;
-        $result->close();
+        $stmt = $conn->prepare("INSERT INTO orders (items) VALUES(?)");
+        $stmt->execute([$data['items']]);
+        $orderId = $conn->lastInsertId();
         return self::findOrderById($orderId, $conn);
     }
 
     public static function delete($id, $conn)
     {
-        $result = $conn->prepare("DELETE FROM products WHERE id = ?");
-        $result->bind_param('i', $id);
-        $result->execute();
-        $result->close();
-        return $result;
+        $stmt = $conn->prepare("DELETE FROM products WHERE id = ?");
+        $stmt->execute([$id]);
+        return $stmt;
     }
 }
