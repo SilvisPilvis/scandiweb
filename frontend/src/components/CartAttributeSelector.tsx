@@ -5,7 +5,6 @@ interface CartAttributeSelectorProps {
   options: string[];
   brand: string
   selectedValue: string
-  onChange: (value: string) => void;
 }
 
 function filterArrayNumeric(arr: string[]): string[] {
@@ -27,7 +26,6 @@ const CartAttributeSelector: React.FC<CartAttributeSelectorProps> = ({
   options,
   brand,
   selectedValue,
-  onChange
 }) => {
   const attributeKebab = kebabCase(attributeName);
 
@@ -46,13 +44,16 @@ const CartAttributeSelector: React.FC<CartAttributeSelectorProps> = ({
           return (
             <button
               key={option}
-              onClick={() => onChange(option)}
+              // Remove onClick to disable manual selection
               data-testid={`cart-item-attribute-${attributeKebab}-${optionKebab}${isSelected ? '-selected' : ''}`}
-              className='p-2 rounded-md cursor-pointer border border-gray-300 bg-white font-semibold'
+              className='p-2 rounded-md border border-gray-300 bg-white font-semibold'
               style={{
                 backgroundColor: isSelected ? 'black' : 'white',
                 color: isSelected ? 'white' : 'black',
+                opacity: isSelected ? 1 : 0.5, // visually indicate disabled
+                cursor: 'not-allowed',
               }}
+              disabled
             >
               {option}
             </button>

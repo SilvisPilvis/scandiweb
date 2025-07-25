@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'amaterasu/backend',
-        'pretty_version' => '1.0.0+no-version-set',
-        'version' => '1.0.0.0',
-        'reference' => null,
+        'pretty_version' => 'dev-doc-update',
+        'version' => 'dev-doc-update',
+        'reference' => '496cee1fd9b3257a0f44ec6f21764cce61f3df0d',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -11,9 +11,9 @@
     ),
     'versions' => array(
         'amaterasu/backend' => array(
-            'pretty_version' => '1.0.0+no-version-set',
-            'version' => '1.0.0.0',
-            'reference' => null,
+            'pretty_version' => 'dev-doc-update',
+            'version' => 'dev-doc-update',
+            'reference' => '496cee1fd9b3257a0f44ec6f21764cce61f3df0d',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

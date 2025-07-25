@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Model;
+namespace App\Controller;
 
-class PriceModel extends Model
+class PriceController extends Controller
 {
     public static function findAll($conn)
     {
@@ -35,24 +35,17 @@ class PriceModel extends Model
     public static function findById($id, $conn)
     {
         $stmt = $conn->prepare("SELECT * FROM prices WHERE id = ?");
-        $stmt->bind_param('i', $id);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $price = $result->fetch_assoc();
-        $stmt->close();
-
+        $stmt->execute([$id]);
+        $price = $stmt->fetch(\PDO::FETCH_ASSOC);
         return $price;
     }
 
     public static function findByProductId($id, $conn)
     {
         $stmt = $conn->prepare("SELECT * FROM prices WHERE product_id = ?");
-        $stmt->bind_param('s', $id);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        
+        $stmt->execute([$id]);
         $prices = [];
-        while ($row = $result->fetch_assoc()) {
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $prices[] = [
                 'amount' => (float)$row['amount'],
                 'currency' => [
@@ -61,7 +54,6 @@ class PriceModel extends Model
                 ]
             ];
         }
-        $stmt->close();
         return $prices;
     }
 
@@ -69,18 +61,15 @@ class PriceModel extends Model
      * Creates a new price record.
      *
      * @param array   $data Expected to contain 'amount' (float) and 'currency' (array with 'label' and 'symbol').
-     * @param \mysqli $conn The database connection.
+     * @param \PDO $conn The database connection.
      *
      * @return array|null An array representing the created price, matching GraphQL PriceType, or null on failure.
      */
     public static function create($data, $conn)
     {
-        $result = $conn->prepare("INSERT INTO prices (amount, currency) VALUES (?, ?)");
-        $result->bind_param('fs', $data['amount'], $data['currency']);
-        $result->execute();
-        $insert_id = $result->insert_id;
-        $result->close();
-
+        $stmt = $conn->prepare("INSERT INTO prices (amount, currency) VALUES (?, ?)");
+        $stmt->execute([$data['amount'], $data['currency']]);
+        $insert_id = $conn->lastInsertId();
         if ($insert_id) {
             return self::findById($insert_id, $conn);
         }
@@ -89,19 +78,15 @@ class PriceModel extends Model
 
     public static function update($id, $data, $conn)
     {
-        $result = $conn->prepare("UPDATE prices SET amount = ?, currency = ? WHERE id = ?");
-        $result->bind_param('sfi', $data['amount'], $data['currency'], $id);
-        $result->execute();
-        $result->close();
-        return $result;
+        $stmt = $conn->prepare("UPDATE prices SET amount = ?, currency = ? WHERE id = ?");
+        $stmt->execute([$data['amount'], $data['currency'], $id]);
+        return $stmt;
     }
 
     public static function delete($id, $conn)
     {
-        $result = $conn->prepare("DELETE FROM prices WHERE id = ?");
-        $result->bind_param('i', $id);
-        $result->execute();
-        $result->close();
-        return $result;
+        $stmt = $conn->prepare("DELETE FROM prices WHERE id = ?");
+        $stmt->execute([$id]);
+        return $stmt;
     }
 }

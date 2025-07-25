@@ -4,28 +4,28 @@
  * Model
  * php version  8.2
  *
- * @category    Model
- * @description Model abstract class for all models
- * @package     App\Model
+ * @category    Controller
+ * @description Controller abstract class for all controllers
+ * @package     App\Controller
  * @author      Silvestrs Lignickis <silvestrsl47@gmail.com>
  * @license     https://www.apache.org/licenses/LICENSE-2.0 Apache License 2.0
  * @version     GIT: main
  * @link        None
  */
 
-namespace App\Model;
+namespace App\Controller;
 
 /**
- * Class Model
+ * Class Controller
  *
- * @category Model
- * @package  App\Model
+ * @category Controller
+ * @package  App\Controller
  * @author   Silvestrs Lignickis <silvestrsl47@gmail.com>
  * @license  https://www.apache.org/licenses/LICENSE-2.0 Apache License 2.0
  * @link     None
  */
 
-abstract class Model
+abstract class Controller
 {
     // protected string $connection;
     // protected string $table;

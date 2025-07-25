@@ -112,7 +112,10 @@ function Product() {
     };
 
     // Button is disabled if any attribute is not selected
-    const isDisabled = Object.values(selectedAttributes).some(val => !val);
+    let isDisabled = false;
+    if (data && data.data.getProduct) {
+        isDisabled = Object.values(selectedAttributes).some(val => !val) || data.data.getProduct.inStock === false;
+    }
 
     return (
       <div>

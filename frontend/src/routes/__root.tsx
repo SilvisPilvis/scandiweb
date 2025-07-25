@@ -155,7 +155,6 @@ function Cart({ initialOpen = false }: CartProps) {
                                                         attributeName={attribute.id}
                                                         brand={item.brand}
                                                         selectedValue={item.attributes[attribute.id]}
-                                                        onChange={(newValue) => handleAttributeChange(item.id, attribute.id, newValue)}
                                                     />
                                                 )}
                                             </div>

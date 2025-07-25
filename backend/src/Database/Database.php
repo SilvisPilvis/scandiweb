@@ -5,7 +5,7 @@
  * php version  8.2
  *
  * @category    Database
- * @description A Class for database connections using mysqli
+ * @description A Class for database connections using PDO
  * @package     App\Database
  * @author      Silvestrs Lignickis <silvestrsl47@gmail.com>
  * @license     https://www.apache.org/licenses/LICENSE-2.0 Apache License 2.0
@@ -15,9 +15,8 @@
 
 namespace App\Database;
 
-use mysqli;
-use mysqli_sql_exception;
-use mysqli_stmt;
+use PDO;
+use PDOException;
 use RuntimeException;
 
 /**
@@ -31,7 +30,7 @@ use RuntimeException;
  */
 class Database
 {
-    private ?mysqli $_conn = null;
+    private ?PDO $_conn = null;
     private string | null $_host;
     private string | null $_user;
     private string | null $_password;
@@ -55,46 +54,32 @@ class Database
     /**
      * Connect to the database
      *
-     * @return mysqli
+     * @return PDO
      * @throws RuntimeException if connection fails.
      */
-    public function connect(): mysqli
+    public function connect(): PDO
     {
         if ($this->_conn === null) {
-            // Enable mysqli exceptions
-            mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
-
             if (!$this->_host || !$this->_user || !$this->_password || !$this->_db_name) {
                 throw new RuntimeException("Database configuration is not set");
             }
 
+            $dsn = "mysql:host={$this->_host};dbname={$this->_db_name};charset=utf8mb4";
             try {
-                $this->_conn = new mysqli(
-                    $this->_host,
+                $this->_conn = new PDO(
+                    $dsn,
                     $this->_user,
                     $this->_password,
-                    $this->_db_name
+                    [
+                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                        PDO::ATTR_EMULATE_PREPARES => false,
+                    ]
                 );
-
-                // connect_error check is somewhat redundant if MYSQLI_REPORT_STRICT
-                // is on, as an exception would have been thrown.
-                // Kept for explicit error message population.
-                if ($this->_conn->connect_error) {
-                    $this->connect_error =
-                        "Connection failed: " . $this->_conn->connect_error;
-                    error_log($this->connect_error);
-                    throw new RuntimeException(
-                        $this->connect_error,
-                        $this->_conn->connect_errno
-                    );
-                }
-
-                $this->_conn->set_charset("utf8mb4");
                 $this->connect_error = null;
-            } catch (mysqli_sql_exception $e) {
+            } catch (PDOException $e) {
                 $this->connect_error = "Connection failed: " . $e->getMessage();
                 error_log($this->connect_error);
-
                 throw new RuntimeException(
                     $this->connect_error,
                     (int) $e->getCode(),
@@ -106,47 +91,11 @@ class Database
     }
 
     /**
-     * Get the mysqli connection, ensuring it's established.
+     * Get the PDO connection, ensuring it's established.
      */
-    private function _getConnectedInstance(): mysqli
+    private function _getConnectedInstance(): PDO
     {
         return $this->connect();
-    }
-
-    /**
-     * Helper to bind parameters to a mysqli_stmt.
-     *
-     * @param mysqli_stmt $stmt The statement.
-     * @param array       $params Parameters to bind.
-     * @return void
-     */
-    private function _bindParams(mysqli_stmt $stmt, array $params): void
-    {
-        if (empty($params)) {
-            return;
-        }
-
-        $types = '';
-        $bindableParams = [];
-
-        foreach ($params as $param) {
-            if (is_int($param)) {
-                $types .= 'i';
-            } elseif (is_float($param)) {
-                $types .= 'd';
-            } elseif (is_string($param)) {
-                $types .= 's';
-            } elseif (is_bool($param)) {
-                $types .= 'i'; // Treat booleans as integers
-                $param = (int) $param;
-            } elseif (is_null($param)) {
-                $types .= 's'; // Type doesn't strictly matter for NULL
-            } else {
-                $types .= 'b'; // Default to blob for other types
-            }
-            $bindableParams[] = $param;
-        }
-        $stmt->bind_param($types, ...$bindableParams);
     }
 
     /**
@@ -161,33 +110,15 @@ class Database
     public function query(string $query, array $params = []): array
     {
         $conn = $this->_getConnectedInstance();
-        $stmt = $conn->prepare($query);
-
-        if (!$stmt) {
-            throw new RuntimeException(
-                "Prepare failed: (" . $conn->errno . ") " . $conn->error
-            );
+        try {
+            $stmt = $conn->prepare($query);
+            $stmt->execute($params);
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            $this->error = $e->getMessage();
+            error_log($this->error);
+            throw new RuntimeException($this->error, (int) $e->getCode(), $e);
         }
-
-        $this->_bindParams($stmt, $params);
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        if (!$result) {
-            // For non-SELECT queries, get_result() returns false.
-            $stmt->close();
-            if ($conn->error) {
-                $this->error = $conn->error;
-                error_log($conn->error);
-                throw new RuntimeException($conn->error);
-            }
-            // If there's no error but no result (e.g., for INSERT/UPDATE queries)
-            return [];
-        }
-
-        $data = $result->fetch_all(MYSQLI_ASSOC);
-        $stmt->close();
-        return $data;
     }
 
     /**
@@ -201,24 +132,16 @@ class Database
     public function insert(string $query, array $params = []): string|false
     {
         $conn = $this->_getConnectedInstance();
-        $stmt = $conn->prepare($query);
-
-        if (!$stmt) {
-            throw new RuntimeException(
-                "Prepare failed: (" . $conn->errno . ") " . $conn->error
-            );
+        try {
+            $stmt = $conn->prepare($query);
+            $stmt->execute($params);
+            $lastId = $conn->lastInsertId();
+            return $lastId !== "0" ? $lastId : false;
+        } catch (PDOException $e) {
+            $this->error = $e->getMessage();
+            error_log($this->error);
+            throw new RuntimeException($this->error, (int) $e->getCode(), $e);
         }
-
-        $this->_bindParams($stmt, $params);
-        $stmt->execute();
-
-        $lastId = $conn->insert_id;
-        $stmt->close();
-
-        if ($lastId > 0) {
-            return (string) $lastId;
-        }
-        return false;
     }
 
     /**
@@ -232,19 +155,15 @@ class Database
     public function update(string $query, array $params = []): int
     {
         $conn = $this->_getConnectedInstance();
-        $stmt = $conn->prepare($query);
-
-        if (!$stmt) {
-            throw new RuntimeException(
-                "Prepare failed: (" . $conn->errno . ") " . $conn->error
-            );
+        try {
+            $stmt = $conn->prepare($query);
+            $stmt->execute($params);
+            return $stmt->rowCount();
+        } catch (PDOException $e) {
+            $this->error = $e->getMessage();
+            error_log($this->error);
+            throw new RuntimeException($this->error, (int) $e->getCode(), $e);
         }
-
-        $this->_bindParams($stmt, $params);
-        $stmt->execute();
-        $affectedRows = $stmt->affected_rows;
-        $stmt->close();
-        return $affectedRows;
     }
 
     /**
@@ -258,30 +177,32 @@ class Database
     public function delete(string $query, array $params = []): int
     {
         $conn = $this->_getConnectedInstance();
-        $stmt = $conn->prepare($query);
-
-        if (!$stmt) {
-            throw new RuntimeException(
-                "Prepare failed: (" . $conn->errno . ") " . $conn->error
-            );
+        try {
+            $stmt = $conn->prepare($query);
+            $stmt->execute($params);
+            return $stmt->rowCount();
+        } catch (PDOException $e) {
+            $this->error = $e->getMessage();
+            error_log($this->error);
+            throw new RuntimeException($this->error, (int) $e->getCode(), $e);
         }
-
-        $this->_bindParams($stmt, $params);
-        $stmt->execute();
-        $affectedRows = $stmt->affected_rows;
-        $stmt->close();
-        return $affectedRows;
     }
 
     /**
      * Prepares an SQL statement for execution.
      *
      * @param string $sql The SQL statement to prepare (must use ? placeholders).
-     * @return mysqli_stmt|false
+     * @return \PDOStatement|false
      */
-    public function prepare(string $sql): mysqli_stmt|false
+    public function prepare(string $sql): \PDOStatement|false
     {
-        return $this->_getConnectedInstance()->prepare($sql);
+        try {
+            return $this->_getConnectedInstance()->prepare($sql);
+        } catch (PDOException $e) {
+            $this->error = $e->getMessage();
+            error_log($this->error);
+            return false;
+        }
     }
 
     /**
@@ -289,9 +210,6 @@ class Database
      */
     public function __destruct()
     {
-        if ($this->_conn !== null) {
-            $this->_conn->close();
-            $this->_conn = null;
-        }
+        $this->_conn = null; // PDO closes connection when set to null
     }
 }
