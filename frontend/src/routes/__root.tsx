@@ -6,10 +6,11 @@ import CartEmpty from '../icons/CartEmpty'
 import { useState, useEffect, useRef } from 'react'
 import CartAttributeSelector from '../components/CartAttributeSelector'
 import logger from '../components/logger'
+import {startCase, camelCase} from 'lodash';
 
 async function PlaceOrderMutation(items: Item[]) {
     const modifiedItems = items.map(({ allAttributes, ...rest }) => rest);
-    logger.info('Items to be placed in the order');
+    // logger.info('Items to be placed in the order');
     // logger.info(JSON.stringify(modifiedItems));
     const response = await fetch(import.meta.env.VITE_API_URL, {
         method: 'POST',
@@ -23,7 +24,7 @@ async function PlaceOrderMutation(items: Item[]) {
             `,
             variables: {
                 items: {
-                    items: modifiedItems
+                    items: JSON.stringify(modifiedItems)
                 }
             }
         })
@@ -43,8 +44,55 @@ async function PlaceOrder(items: Item[]) {
     alert("Order placed");
 }
 
+async function getCategories(){
+    const response = await fetch(import.meta.env.VITE_API_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            query: `
+        {
+            getCategories {
+                name
+            }
+        }
+            `,
+        })
+    })
+    return response.json()
+}
+
 interface CartProps {
     initialOpen?: boolean; // New prop to control initial open state
+}
+
+function useCategories() {
+    const [categories, setCategories] = useState<string[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        async function fetchCategories() {
+            try {
+                // Added try...catch for better error handling
+                const res = await getCategories();
+                // Check if res.data exists and then res.data.getCategories
+                // Also good to check if res.data.getCategories is an array
+                if (res && res.data && Array.isArray(res.data.getCategories)) {
+                    setCategories(res.data.getCategories.map((cat: { name: string }) => cat.name));
+                } else {
+                    console.warn("Unexpected API response structure:", res);
+                }
+            } catch (error) {
+                console.error("Error fetching categories:", error);
+            } finally {
+                setLoading(false); // Ensure loading is set to false
+            }
+        }
+        fetchCategories();
+    }, []);
+    
+    return { categories, loading };
 }
 
 export function getCartItemId(productId: string, attributes: Record<string, string>) {
@@ -230,42 +278,35 @@ function Cart({ initialOpen = false }: CartProps) {
 }
 
 export const Route = createRootRoute({
-    component: () => (
-        <>
-            <div className="p-2 flex gap-2">
-                <Link
-                    to="/"
-                    activeProps={{ 'data-testid': 'active-category-link', 'className': 'font-bold' }}
-                    inactiveProps={{ 'data-testid': 'category-link' }}
-                >
-                    Home
-                </Link>{' '}
-                <Link
-                    to="/all"
-                    activeProps={{ 'data-testid': 'active-category-link', 'className': 'font-bold' }}
-                    inactiveProps={{ 'data-testid': 'category-link' }}
-                >
-                    All
-                </Link>{' '}
-                <Link
-                    to="/clothes"
-                    activeProps={{ 'data-testid': 'active-category-link', 'className': 'font-bold' }}
-                    inactiveProps={{ 'data-testid': 'category-link' }}
-                >
-                    Clothes
-                </Link>{' '}
-                <Link
-                    to="/tech"
-                    activeProps={{ 'data-testid': 'active-category-link', 'className': 'font-bold' }}
-                    inactiveProps={{ 'data-testid': 'category-link' }}
-                >
-                    Tech
-                </Link>{' '}
-                <Cart />
-            </div>
-            <hr />
-            <Outlet />
-            <TanStackRouterDevtools />
-        </>
-    ),
+    component: () => {
+        const { categories, loading } = useCategories();
+
+        return (
+            <>
+                <div className="p-2 flex gap-2">
+                    <Link
+                        to="/"
+                        activeProps={{ 'data-testid': 'active-category-link', 'className': 'font-bold' }}
+                        inactiveProps={{ 'data-testid': 'category-link' }}
+                    >
+                        Home
+                    </Link>{' '}
+                    {!loading && categories.map((name) => (
+                        <Link
+                            key={name}
+                            to={`/${name}`}
+                            activeProps={{ 'data-testid': 'active-category-link', 'className': 'font-bold' }}
+                            inactiveProps={{ 'data-testid': 'category-link' }}
+                        >
+                            {startCase(camelCase(name))}
+                        </Link>
+                    ))}
+                    <Cart />
+                </div>
+                <hr />
+                <Outlet />
+                <TanStackRouterDevtools />
+            </>
+        );
+    },
 })
