@@ -283,9 +283,23 @@ class ProductController extends Controller
     }
 
     public static function create_order($conn, $data) {
-        $stmt = $conn->prepare("INSERT INTO orders (items) VALUES(?)");
-        $stmt->execute([$data['items']]);
-        $orderId = $conn->lastInsertId();
+        // $conn is an instance of App\Database\Database
+        // If $data['items'] is correctly formatted for insertion (e.g., serialized JSON)
+
+        // You might need to adjust how $data['items'] is handled for the INSERT.
+        // If it's an array, you probably need to serialize it (e.g., json_encode).
+        // Example adjustment if items is an array:
+        $itemsToInsert = is_array($data['items']) ? json_encode($data['items']) : $data['items'];
+
+        // Use the Database wrapper's insert method
+        // Note: The insert method returns the last insert ID (string|false)
+        $orderId = $conn->insert("INSERT INTO orders (items) VALUES (?)", [$itemsToInsert]);
+
+        if ($orderId === false) {
+            // Handle insertion failure
+            throw new \RuntimeException("Failed to insert order or retrieve order ID.");
+        }
+
         return self::findOrderById($orderId, $conn);
     }
 
