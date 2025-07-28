@@ -19,18 +19,12 @@ use GraphQL\Error\DebugFlag;
 use GraphQL\GraphQL as GraphQLBase;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Schema;
 use GraphQL\Type\SchemaConfig;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Error\InvariantViolation;
 use RuntimeException;
 use Throwable;
-use App\Controller\ProductController;
-use App\Controller\CategoryController;
-use App\Controller\AttributeSetController;
-use App\Controller\AttributeController;
-use App\Controller\PriceController;
 use App\GraphQL\Type\ProductType;
 use App\GraphQL\Type\CategoryType;
 use App\GraphQL\Type\AttributeSetType;
@@ -69,6 +63,7 @@ class GraphQLController
         try {
             $contextValue = ['db' => $this->_db];
 
+            $categoryController = new \App\Controller\CategoryController($this->_db);
             $queryType = new ObjectType(
                 [
                 'name' => 'Query',
@@ -77,7 +72,8 @@ class GraphQLController
                         'type' => Type::listOf(Type::nonNull(CategoryType::getType())),
                         'resolve' => static function ($rootValue, array $args, $ctx, ResolveInfo $info) {
                             $contextDb = $ctx['db'];
-                            $result = CategoryController::findAll($contextDb);
+                            $categoryController = new \App\Controller\CategoryController($contextDb);
+                            $result = $categoryController->findAll();
                             return $result;
                         }
                     ],
@@ -88,7 +84,8 @@ class GraphQLController
                         ],
                         'resolve' => static function ($rootValue, array $args, $ctx, ResolveInfo $info) {
                             $contextDb = $ctx['db'];
-                            $result = CategoryController::findById($args['id'], $contextDb);
+                            $categoryController = new \App\Controller\CategoryController($contextDb);
+                            $result = $categoryController->findById($args['id']);
                             return $result;
                         }
                     ],
@@ -96,7 +93,8 @@ class GraphQLController
                         'type' => Type::listOf(Type::nonNull(ProductType::getType())),
                         'resolve' => static function ($rootValue, array $args, $ctx, ResolveInfo $info) {
                             $contextDb = $ctx['db'];
-                            $result = ProductController::findAll($contextDb);
+                            $productController = new \App\Controller\ProductController($contextDb);
+                            $result = $productController->findAll();
                             return $result;
                         }
                     ],
@@ -107,7 +105,8 @@ class GraphQLController
                         ],
                         'resolve' => static function ($rootValue, array $args, $ctx, ResolveInfo $info) {
                             $contextDb = $ctx['db'];
-                            $result = ProductController::findByCategory($args['category'], $contextDb);
+                            $productController = new \App\Controller\ProductController($contextDb);
+                            $result = $productController->findByCategory($args['category']);
                             return $result;
                         }
                     ],
@@ -118,7 +117,8 @@ class GraphQLController
                         ],
                         'resolve' => static function ($rootValue, array $args, $ctx, ResolveInfo $info) {
                             $contextDb = $ctx['db'];
-                            $result = ProductController::findById($args['id'], $contextDb);
+                            $productController = new \App\Controller\ProductController($contextDb);
+                            $result = $productController->findById($args['id']);
                             return $result;
                         }
                     ],
@@ -126,7 +126,8 @@ class GraphQLController
                         'type' => Type::listOf(Type::nonNull(AttributeType::getType())),
                         'resolve' => static function ($rootValue, array $args, $ctx, ResolveInfo $info) {
                             $contextDb = $ctx['db'];
-                            $result = AttributeController::findAll($contextDb);
+                            $attributeController = new \App\Controller\AttributeController($contextDb);
+                            $result = $attributeController->findAll();
                             return $result;
                         }
                     ],
@@ -137,7 +138,8 @@ class GraphQLController
                         ],
                         'resolve' => static function ($rootValue, array $args, $ctx, ResolveInfo $info) {
                             $contextDb = $ctx['db'];
-                            $result = AttributeController::findById($args['id'], $contextDb);
+                            $attributeController = new \App\Controller\AttributeController($contextDb);
+                            $result = $attributeController->findById($args['id']);
                             return $result;
                         }
                     ],
@@ -145,7 +147,8 @@ class GraphQLController
                         'type' => Type::listOf(Type::nonNull(AttributeSetType::getType())),
                         'resolve' => static function ($rootValue, array $args, $ctx, ResolveInfo $info) {
                             $contextDb = $ctx['db'];
-                            $result = AttributeSetController::findAll($contextDb);
+                            $attributeSetController = new \App\Controller\AttributeSetController($contextDb);
+                            $result = $attributeSetController->findAll();
                             return $result;
                         }
                     ],
@@ -156,7 +159,8 @@ class GraphQLController
                         ],
                         'resolve' => static function ($rootValue, array $args, $ctx, ResolveInfo $info) {
                             $contextDb = $ctx['db'];
-                            $result = AttributeSetController::findById($args['id'], $contextDb);
+                            $attributeSetController = new \App\Controller\AttributeSetController($contextDb);
+                            $result = $attributeSetController->findById($args['id']);
                             return $result;
                         }
                     ],
@@ -167,7 +171,8 @@ class GraphQLController
                         ],
                         'resolve' => static function ($rootValue, array $args, $ctx, ResolveInfo $info) {
                             $contextDb = $ctx['db'];
-                            $result = AttributeSetController::findItemsBySetId($args['id'], $contextDb);
+                            $attributeSetController = new \App\Controller\AttributeSetController($contextDb);
+                            $result = $attributeSetController->findItemsBySetId($args['id']);
                             return $result;
                         }
                     ],
@@ -175,7 +180,8 @@ class GraphQLController
                         'type' => Type::listOf(Type::nonNull(PriceType::getType())),
                         'resolve' => static function ($rootValue, array $args, $ctx, ResolveInfo $info) {
                             $contextDb = $ctx['db'];
-                            $result = PriceController::findAll($contextDb);
+                            $priceController = new \App\Controller\PriceController($contextDb);
+                            $result = $priceController->findAll();
                             return $result;
                         }
                     ],
@@ -186,7 +192,8 @@ class GraphQLController
                         ],
                         'resolve' => static function ($rootValue, array $args, $ctx, ResolveInfo $info) {
                             $contextDb = $ctx['db'];
-                            $result = PriceController::findById($args['id'], $contextDb);
+                            $priceController = new \App\Controller\PriceController($contextDb);
+                            $result = $priceController->findById($args['id']);
                             return $result;
                         }
                     ]
@@ -209,7 +216,8 @@ class GraphQLController
                         'resolve' => static function ($root, array $args, $ctx, ResolveInfo $info) {
                             $productData = $args['product'];
                             $contextDb = $ctx['db'];
-                            $result = ProductController::create($productData, $contextDb);
+                            $productController = new \App\Controller\ProductController($contextDb);
+                            $result = $productController->create($productData);
                             return $result;
                         }
                     ],
@@ -224,7 +232,8 @@ class GraphQLController
                         'resolve' => static function ($root, array $args, $ctx, ResolveInfo $info) {
                             $productData = $args['items'];
                             $contextDb = $ctx['db'];
-                            $result = ProductController::create_order($contextDb, $productData);
+                            $productController = new \App\Controller\ProductController($contextDb);
+                            $result = $productController->create_order($contextDb, $productData);
                             return $result;
                         }
                     ],
@@ -239,7 +248,8 @@ class GraphQLController
                         'resolve' => static function ($root, array $args, $ctx, ResolveInfo $info) {
                             $categoryData = $args['category'];
                             $contextDb = $ctx['db'];
-                            $result = CategoryController::create($categoryData, $contextDb);
+                            $categoryController = new \App\Controller\CategoryController($contextDb);
+                            $result = $categoryController->create($categoryData);
                             return $result;
                         }
                     ],
@@ -254,7 +264,8 @@ class GraphQLController
                         'resolve' => static function ($root, array $args, $ctx, ResolveInfo $info) {
                             $attributeSetData = $args['attributeSet'];
                             $contextDb = $ctx['db'];
-                            $result = AttributeSetController::create($attributeSetData, $contextDb);
+                            $attributeSetController = new \App\Controller\AttributeSetController($contextDb);
+                            $result = $attributeSetController->create($attributeSetData);
                             return $result;
                         }
                     ],
@@ -269,7 +280,8 @@ class GraphQLController
                         'resolve' => static function ($root, array $args, $ctx, ResolveInfo $info) {
                             $attributeData = $args['attribute'];
                             $contextDb = $ctx['db'];
-                            $result = AttributeController::create($attributeData, $contextDb);
+                            $attributeController = new \App\Controller\AttributeController($contextDb);
+                            $result = $attributeController->create($attributeData);
                             return $result;
                         }
                     ],

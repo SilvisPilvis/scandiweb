@@ -19,7 +19,7 @@ class ProductType
                 'fields' => [
                     'id' => Type::nonNull(Type::string()),
                     'name' => Type::nonNull(Type::string()),
-                    'inStock' => Type::nonNull(Type::boolean()),
+                    'in_stock' => Type::nonNull(Type::boolean()),
                     'gallery' => Type::nonNull(Type::listOf(Type::nonNull(Type::string()))),
                     'description' => Type::nonNull(Type::string()),
                     'category' => Type::nonNull(CategoryType::getType()),

@@ -7,20 +7,22 @@ class AttributeModel
     public $id;
     public $displayValue;
     public $value;
+    private $conn;
 
-    public function __construct($id, $displayValue, $value)
+    public function __construct($conn, $id = null, $displayValue = null, $value = null)
     {
+        $this->conn = $conn;
         $this->id = $id;
         $this->displayValue = $displayValue;
         $this->value = $value;
     }
 
-    public static function findAll($conn)
+    public function findAll()
     {
         $attributes = [];
-        $rows = $conn->query('SELECT id FROM attributes');
+        $rows = $this->conn->query('SELECT id FROM attributes');
         if ($rows === false) {
-            $error = $conn->error;
+            $error = $this->conn->error;
             error_log("Database error in AttributeModel::findAll: " . $error);
             throw new \RuntimeException("Database error fetching attribute IDs: " . $error);
         }
@@ -30,7 +32,7 @@ class AttributeModel
         }
         foreach ($rows as $row) {
             if (isset($row['id'])) {
-                $attribute = self::findById($row['id'], $conn);
+                $attribute = $this->findById($row['id']);
                 if ($attribute) {
                     $attributes[] = $attribute;
                 }
@@ -39,37 +41,38 @@ class AttributeModel
         return $attributes;
     }
 
-    public static function findById($id, $conn)
+    public function findById($id)
     {
-        $stmt = $conn->prepare("SELECT * FROM attributes WHERE id = ?");
+        $stmt = $this->conn->prepare("SELECT * FROM attributes WHERE id = ?");
         $stmt->execute([$id]);
-        $attribute = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $stmt->setFetchMode(\PDO::FETCH_CLASS, AttributeModel::class, [$this->conn]);
+        $attribute = $stmt->fetch();
         if (!$attribute) return null;
         $displayValue = $attribute['display_value'];
-        return new self($attribute['id'], $displayValue, $attribute['value']);
+        return $attribute;
     }
 
-    public static function create($data, $conn)
+    public function create($data)
     {
-        $stmt = $conn->prepare("INSERT INTO attributes (display_value, value) VALUES (?, ?)");
+        $stmt = $this->conn->prepare("INSERT INTO attributes (display_value, value) VALUES (?, ?)");
         $stmt->execute([$data['displayValue'], $data['value']]);
-        $insert_id = $conn->lastInsertId();
+        $insert_id = $this->conn->lastInsertId();
         if ($insert_id) {
-            return self::findById($insert_id, $conn);
+            return $this->findById($insert_id);
         }
         return null;
     }
 
-    public static function update($id, $data, $conn)
+    public function update($id, $data)
     {
-        $stmt = $conn->prepare("UPDATE attributes SET display_value = ?, value = ? WHERE id = ?");
+        $stmt = $this->conn->prepare("UPDATE attributes SET display_value = ?, value = ? WHERE id = ?");
         $stmt->execute([$data['displayValue'], $data['value'], $id]);
         return $stmt;
     }
-    
-    public static function delete($id, $conn)
+
+    public function delete($id)
     {
-        $stmt = $conn->prepare("DELETE FROM attributes WHERE id = ?");
+        $stmt = $this->conn->prepare("DELETE FROM attributes WHERE id = ?");
         $stmt->execute([$id]);
         return $stmt;
     }

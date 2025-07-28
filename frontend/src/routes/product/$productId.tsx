@@ -27,7 +27,7 @@ async function fetchProduct(id: string) {
                 getProduct(id: "${id}") {
                 id
                 name
-                inStock
+                in_stock
                 gallery
                 description
                 prices {

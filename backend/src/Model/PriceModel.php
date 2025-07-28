@@ -7,20 +7,22 @@ class PriceModel
     public $id;
     public $amount;
     public $currency;
+    private $conn;
 
-    public function __construct($id, $amount, $currency)
+    public function __construct($conn, $id = null, $amount = null, $currency = null)
     {
+        $this->conn = $conn;
         $this->id = $id;
         $this->amount = $amount;
         $this->currency = $currency;
     }
 
-    public static function findAll($conn)
+    public function findAll()
     {
         $prices = [];
-        $rows = $conn->query('SELECT * FROM prices');
+        $rows = $this->conn->query('SELECT * FROM prices');
         if ($rows === false) {
-            $error = $conn->error;
+            $error = $this->conn->error;
             error_log("Database error in PriceModel::findAll: " . $error);
             throw new \RuntimeException("Database error fetching price IDs: " . $error);
         }
@@ -33,27 +35,25 @@ class PriceModel
                 'label' => $row['currency'],
                 'symbol' => $row['currency'] === 'USD' ? '$' : $row['currency']
             ];
-            $prices[] = new self($row['id'], (float)$row['amount'], $currency);
+            $prices[] = new self($this->conn, $row['id'], (float)$row['amount'], $currency);
         }
         return $prices;
     }
 
-    public static function findById($id, $conn)
+    public function findById($id)
     {
-        $stmt = $conn->prepare("SELECT * FROM prices WHERE id = ?");
+        $stmt = $this->conn->prepare("SELECT * FROM prices WHERE id = ?");
         $stmt->execute([$id]);
-        $price = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $stmt->setFetchMode(\PDO::FETCH_CLASS, PriceModel::class, [$this->conn]);
+        $price = $stmt->fetch();
         if (!$price) return null;
-        $currency = [
-            'label' => $price['currency'],
-            'symbol' => $price['currency'] === 'USD' ? '$' : $price['currency']
-        ];
-        return new self($price['id'], (float)$price['amount'], $currency);
+
+        return $price;
     }
 
-    public static function findByProductId($id, $conn)
+    public function findByProductId($id)
     {
-        $stmt = $conn->prepare("SELECT * FROM prices WHERE product_id = ?");
+        $stmt = $this->conn->prepare("SELECT * FROM prices WHERE product_id = ?");
         $stmt->execute([$id]);
         $prices = [];
         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
@@ -68,27 +68,27 @@ class PriceModel
         return $prices;
     }
 
-    public static function create($data, $conn)
+    public function create($data)
     {
-        $stmt = $conn->prepare("INSERT INTO prices (amount, currency) VALUES (?, ?)");
+        $stmt = $this->conn->prepare("INSERT INTO prices (amount, currency) VALUES (?, ?)");
         $stmt->execute([$data['amount'], $data['currency']]);
-        $insert_id = $conn->lastInsertId();
+        $insert_id = $this->conn->lastInsertId();
         if ($insert_id) {
-            return self::findById($insert_id, $conn);
+            return $this->findById($insert_id);
         }
         return null;
     }
 
-    public static function update($id, $data, $conn)
+    public function update($id, $data)
     {
-        $stmt = $conn->prepare("UPDATE prices SET amount = ?, currency = ? WHERE id = ?");
+        $stmt = $this->conn->prepare("UPDATE prices SET amount = ?, currency = ? WHERE id = ?");
         $stmt->execute([$data['amount'], $data['currency'], $id]);
         return $stmt;
     }
-    
-    public static function delete($id, $conn)
+
+    public function delete($id)
     {
-        $stmt = $conn->prepare("DELETE FROM prices WHERE id = ?");
+        $stmt = $this->conn->prepare("DELETE FROM prices WHERE id = ?");
         $stmt->execute([$id]);
         return $stmt;
     }

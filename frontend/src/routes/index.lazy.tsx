@@ -16,7 +16,7 @@ async function fetchProductsCards() {
             getProducts {
                 id
                 name
-                inStock
+                in_stock
                 gallery
                 description
                 prices {

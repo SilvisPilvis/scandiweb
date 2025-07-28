@@ -7,34 +7,28 @@ class ProductModel
     // Instance properties (optional if you mainly use static methods returning arrays)
     public $id;
     public $name;
-    public $inStock;
+    public $in_stock;
     public $gallery; // Array of strings (URLs)
     public $description;
     public $category; // Category object/array
+    public $category_id;
     public $attributes; // Array of AttributeSet objects/arrays
     public $prices; // Array of Price objects/arrays
     public $brand;
+    private $conn;
 
     // Corrected Constructor (if you plan to instantiate ProductModel objects)
-    public function __construct($id, $name, $inStock, $gallery, $description, $category, $attributes, $prices, $brand)
+    public function __construct($conn)
     {
-        $this->id = $id;
-        $this->name = $name;
-        $this->inStock = $inStock;
-        $this->gallery = $gallery;
-        $this->description = $description;
-        $this->category = $category;
-        $this->attributes = $attributes;
-        $this->prices = $prices;
-        $this->brand = $brand;
+        $this->conn = $conn;
     }
 
-    public static function findAll($conn)
+    public function findAll()
     {
         $products = [];
-        $rows = $conn->query('SELECT id FROM products');
+        $rows = $this->conn->query('SELECT id FROM products');
         if ($rows === false) {
-            $error = $conn->error;
+            $error = $this->conn->error;
             error_log("Database error in ProductModel::findAll: " . $error);
             throw new \RuntimeException("Database error fetching product IDs: " . $error);
         }
@@ -44,7 +38,7 @@ class ProductModel
         }
         foreach ($rows as $row) {
             if (isset($row['id'])) {
-                $product = self::findById($row['id'], $conn);
+                $product = $this->findById($row['id']);
                 if ($product) {
                     $products[] = $product;
                 }
@@ -53,48 +47,96 @@ class ProductModel
         return $products;
     }
 
-    public static function findById($id, $conn)
+    public function findById($id)
     {
-        $stmt = $conn->prepare("SELECT * FROM products WHERE id = ?");
+        $product = new self($this->conn);
+
+        $stmt = $this->conn->prepare("SELECT * FROM products WHERE id = ?");
         $stmt->execute([$id]);
-        $productData = $stmt->fetch(\PDO::FETCH_ASSOC);
-        if (!$productData) return null;
-        // You may want to fetch related data for gallery, category, attributes, prices, etc.
-        // For now, just pass the DB fields directly
-        return new self(
-            $productData['id'],
-            $productData['name'],
-            $productData['in_stock'],
-            [], // gallery
-            $productData['description'],
-            $productData['category_id'],
-            [], // attributes
-            [], // prices
-            $productData['brand']
+
+        // 1. Fetch product data
+        $stmt->setFetchMode(\PDO::FETCH_CLASS, ProductModel::class, [$this->conn]);
+        $product = $stmt->fetch();
+        if (!$product) return null;
+
+        // error_log(json_encode($product));
+
+        // 2. Fetch Category data using CategoryModel findById
+        $categoryModel = new \App\Model\CategoryModel($this->conn);
+        $categoryData = $categoryModel->findById($product->category_id);
+        if (!empty($categoryData)){
+            $product->category = $categoryData;
+        } else {
+            // Should handle this as error
+            $product->category = null;
+        }
+
+        // 3. Fetch gallery images
+        $galleryStmt = $this->conn->prepare("SELECT image_url FROM product_gallery_images WHERE product_id = ?");
+        $galleryStmt->execute([$id]);
+        $galleryData = $galleryStmt->fetchAll(\PDO::FETCH_ASSOC);
+        if ($galleryData) {
+            $galleryData = array_column($galleryData, 'image_url');
+        }
+        $product->gallery = $galleryData;
+
+        // 4. Fetch prices
+        $priceModel = new \App\Model\PriceModel($this->conn);
+        $priceData = $priceModel->findByProductId($id);
+        if ($priceData) {
+            $product->prices = $priceData;
+        } else {
+            $product->prices = null;
+        }
+
+        // 5. Fetch attributes
+        $attributeSets = [];
+        $atributeSetsStmt = $this->conn->prepare(
+            "SELECT aset.id, aset.name, aset.type
+             FROM attribute_sets aset
+             JOIN product_attribute_sets pas ON aset.id = pas.attribute_set_id
+             WHERE pas.product_id = ?"
         );
+        $atributeSetsStmt->execute([$id]);
+        while ($asRow = $atributeSetsStmt->fetch(\PDO::FETCH_ASSOC)) {
+            $currentSet = $asRow;
+            $attributeSetModel = new \App\Model\AttributeSetModel($this->conn);
+            $currentSet['items'] = $attributeSetModel->findItemsBySetId($currentSet['id']);
+            array_push($attributeSets, $currentSet);
+        }
+        // $atributeSetsData = $atributeSetsStmt->fetchAll(\PDO::FETCH_ASSOC);
+        // $product->attributes = $atributeSetsData;
+        $product->attributes = $attributeSets;
+
+        // Make sure inStock is a boolean
+        $product->in_stock = (bool)$product->in_stock;
+
+        // error_log(json_encode($product));
+
+        return $product;
     }
 
-    public static function create($data, $conn)
+    public function create($data)
     {
-        $stmt = $conn->prepare("INSERT INTO products (id, name, in_stock, description, category_id, brand) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt = $this->conn->prepare("INSERT INTO products (id, name, in_stock, description, category_id, brand) VALUES (?, ?, ?, ?, ?, ?)");
         $stmt->execute([$data['id'], $data['name'], $data['in_stock'], $data['description'], $data['category_id'], $data['brand']]);
-        $insert_id = $conn->lastInsertId();
+        $insert_id = $this->conn->lastInsertId();
         if ($insert_id) {
-            return self::findById($insert_id, $conn);
+            return $this->findById($insert_id);
         }
         return null;
     }
 
-    public static function update($id, $data, $conn)
+    public function update($id, $data)
     {
-        $stmt = $conn->prepare("UPDATE products SET name = ?, in_stock = ?, description = ?, category_id = ?, brand = ? WHERE id = ?");
+        $stmt = $this->conn->prepare("UPDATE products SET name = ?, in_stock = ?, description = ?, category_id = ?, brand = ? WHERE id = ?");
         $stmt->execute([$data['name'], $data['in_stock'], $data['description'], $data['category_id'], $data['brand'], $id]);
         return $stmt;
     }
     
-    public static function delete($id, $conn)
+    public function delete($id)
     {
-        $stmt = $conn->prepare("DELETE FROM products WHERE id = ?");
+        $stmt = $this->conn->prepare("DELETE FROM products WHERE id = ?");
         $stmt->execute([$id]);
         return $stmt;
     }

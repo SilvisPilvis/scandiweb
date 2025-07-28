@@ -2,83 +2,46 @@
 
 namespace App\Controller;
 
+use App\Model\AttributeSetModel;
+
 class AttributeSetController extends Controller
 {
-    public static function findAll($conn)
+    private $attributeSetModel;
+    private $conn;
+
+    public function __construct($conn)
     {
-        $attributeSets = [];
-        $rows = $conn->query('SELECT id FROM attribute_sets');
-
-        if ($rows === false) {
-            $error = $conn->error;
-            error_log("Database error in AtributeSetModel::findAll: " . $error);
-            throw new \RuntimeException("Database error fetching attribute set IDs: " . $error);
-        }
-
-        if (!is_array($rows)) {
-            error_log("Unexpected return type from DB query in AtributeSetModel::findAll");
-            throw new \RuntimeException("Unexpected data format from database query.");
-        }
-
-        foreach ($rows as $row) {
-            if (isset($row['id'])) {
-                $attributeSet = self::findById($row['id'], $conn);
-                if ($attributeSet) {
-                    $attributeSets[] = $attributeSet;
-                }
-            }
-        }
-        return $attributeSets;
+        $this->conn = $conn;
+        $this->attributeSetModel = new \App\Model\AttributeSetModel($conn);
     }
 
-    public static function findById($id, $conn)
+    public function findAll()
     {
-        $stmt = $conn->prepare("SELECT * FROM attribute_sets WHERE id = ?");
-        $stmt->execute([$id]);
-        $attributeSet = $stmt->fetch(\PDO::FETCH_ASSOC);
-        return $attributeSet;
+        return $this->attributeSetModel->findAll();
     }
 
-    public static function findItemsBySetId($id, $conn)
+    public function findById($id)
     {
-        $stmt = $conn->prepare(
-            "SELECT a.* 
-            FROM attributes a
-            JOIN attribute_set_items asi ON a.id = asi.attribute_id
-            WHERE asi.attribute_set_id = ?"
-        );
-        $stmt->execute([$id]);
-        $items = [];
-        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $row['displayValue'] = $row['display_value'];
-            unset($row['display_value']);
-            $items[] = $row;
-        }
-        return $items;
+        return $this->attributeSetModel->findById($id);
     }
 
-    public static function create($data, $conn)
+    public function findItemsBySetId($id)
     {
-        $stmt = $conn->prepare("INSERT INTO attribute_sets (name, type) VALUES (?, ?)");
-        $stmt->execute([$data['name'], $data['type']]);
-        $insert_id = $conn->lastInsertId();
-        if ($insert_id) {
-            return self::findById($insert_id, $conn);
-        }
-        return null;
+        return $this->attributeSetModel->findItemsBySetId($id);
     }
 
-    public static function update($id, $data, $conn)
+    public function create($data)
     {
-        $stmt = $conn->prepare("UPDATE attribute_sets SET name = ?, type = ? WHERE id = ?");
-        $stmt->execute([$data['name'], $data['type'], $id]);
-        return $stmt;
+        return $this->attributeSetModel->create($data);
     }
 
-    public static function delete($id, $conn)
+    public function update($id, $data)
     {
-        $stmt = $conn->prepare("DELETE FROM attribute_sets WHERE id = ?");
-        $stmt->execute([$id]);
-        return $stmt;
+        return $this->attributeSetModel->update($id, $data);
+    }
+
+    public function delete($id)
+    {
+        return $this->attributeSetModel->delete($id);
     }
 }

@@ -6,19 +6,19 @@ class CategoryModel
 {
     public $id;
     public $name;
+    private $conn;
 
-    public function __construct($id, $name)
+    public function __construct($conn)
     {
-        $this->id = $id;
-        $this->name = $name;
+        $this->conn = $conn;
     }
 
-    public static function findAll($conn)
+    public function findAll()
     {
         $categories = [];
-        $rows = $conn->query('SELECT id FROM categories');
+        $rows = $this->conn->query('SELECT id FROM categories');
         if ($rows === false) {
-            $error = $conn->error;
+            $error = $this->conn->error;
             error_log("Database error in CategoryModel::findAll: " . $error);
             throw new \RuntimeException("Database error fetching category IDs: " . $error);
         }
@@ -28,7 +28,7 @@ class CategoryModel
         }
         foreach ($rows as $row) {
             if (isset($row['id'])) {
-                $category = self::findById($row['id'], $conn);
+                $category = $this->findById($row['id']);
                 if ($category) {
                     $categories[] = $category;
                 }
@@ -37,37 +37,50 @@ class CategoryModel
         return $categories;
     }
     
-    public static function findById($id, $conn)
+    public function findById($id)
     {
-        $stmt = $conn->prepare("SELECT * FROM categories WHERE id = ?");
+        $stmt = $this->conn->prepare("SELECT * FROM categories WHERE id = ?");
         $stmt->execute([$id]);
-        $category = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $stmt->setFetchMode(\PDO::FETCH_CLASS, CategoryModel::class, [$this->conn]);
+        $category = $stmt->fetch();
         if (!$category) return null;
-        return new self($category['id'], $category['name']);
+        if (!isset($category->name) || $category->name === null || trim($category->name) === '') {
+            throw new \RuntimeException("Category with id $id has a null or empty name, which is not allowed for GraphQL non-nullable field 'Category.name'.");
+        }
+
+        return $category;
     }
 
-    public static function create($data, $conn)
+    public function create($data)
     {
-        $stmt = $conn->prepare("INSERT INTO categories (name) VALUES (?)");
+        $stmt = $this->conn->prepare("INSERT INTO categories (name) VALUES (?)");
         $stmt->execute([$data['name']]);
-        $insert_id = $conn->lastInsertId();
+        $insert_id = $this->conn->lastInsertId();
         if ($insert_id) {
-            return self::findById($insert_id, $conn);
+            return $this->findById($insert_id);
         }
         return null;
     }
 
-    public static function update($id, $data, $conn)
+    public function update($id, $data)
     {
-        $stmt = $conn->prepare("UPDATE categories SET name = ? WHERE id = ?");
+        $stmt = $this->conn->prepare("UPDATE categories SET name = ? WHERE id = ?");
         $stmt->execute([$data['name'], $id]);
         return $stmt;
     }
 
-    public static function delete($id, $conn)
+    public function delete($id)
     {
-        $stmt = $conn->prepare("DELETE FROM categories WHERE id = ?");
+        $stmt = $this->conn->prepare("DELETE FROM categories WHERE id = ?");
         $stmt->execute([$id]);
         return $stmt;
+    }
+
+    public function toArray()
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+        ];
     }
 } 

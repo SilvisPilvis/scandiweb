@@ -3,11 +3,12 @@ import { kebabCase } from 'lodash'
 import CartIcon from '../icons/CartIcon'
 import { getCartItemId } from '../routes/__root'
 
-const ProductCard = ({id, name, inStock, gallery, prices, attributes, brand}: {id: string, name: string, inStock: boolean, gallery: string[], prices: any[], attributes?: any, brand?: string}) => {
+const ProductCard = ({id, name, in_stock, gallery, prices, attributes, brand}: {id: string, name: string, in_stock: boolean, gallery: string[], prices: any[], attributes?: any, brand?: string}) => {
   const { addItem } = useCart();
+
   return (
     <>
-    {inStock ? (
+    {in_stock ? (
     <div className="flex flex-col items-start justify-center gap-4 max-w-sm group bg-slate-700 rounded-lg p-4" data-testid={"product-" + kebabCase(name)}>
         <div className="relative">
           <img src={gallery[0]} alt={name} className="min-w-72 max-w-72 object-contain rounded-lg aspect-square" />

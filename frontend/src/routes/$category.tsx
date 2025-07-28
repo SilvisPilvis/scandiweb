@@ -32,7 +32,7 @@ async function fetchProductsByCategory(category: string) {
         getProducts {
             id
             name
-            inStock
+            in_stock
             gallery
             description
             prices {
@@ -72,7 +72,7 @@ async function fetchProductsByCategory(category: string) {
           getProductsByCategory(category: "${category}") {
               id
               name
-              inStock
+              in_stock
               gallery
               description
               prices {
