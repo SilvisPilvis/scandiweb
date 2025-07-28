@@ -4,6 +4,17 @@ namespace App\Model;
 
 class AttributeSetModel
 {
+    public $id;
+    public $name;
+    public $type;
+
+    public function __construct($id, $name, $type)
+    {
+        $this->id = $id;
+        $this->name = $name;
+        $this->type = $type;
+    }
+
     public static function findAll($conn)
     {
         $attributeSets = [];
@@ -27,13 +38,16 @@ class AttributeSetModel
         }
         return $attributeSets;
     }
+
     public static function findById($id, $conn)
     {
         $stmt = $conn->prepare("SELECT * FROM attribute_sets WHERE id = ?");
         $stmt->execute([$id]);
         $attributeSet = $stmt->fetch(\PDO::FETCH_ASSOC);
-        return $attributeSet;
+        if (!$attributeSet) return null;
+        return new self($attributeSet['id'], $attributeSet['name'], $attributeSet['type']);
     }
+
     public static function findItemsBySetId($id, $conn)
     {
         $stmt = $conn->prepare(
@@ -51,6 +65,7 @@ class AttributeSetModel
         }
         return $items;
     }
+
     public static function create($data, $conn)
     {
         $stmt = $conn->prepare("INSERT INTO attribute_sets (name, type) VALUES (?, ?)");
@@ -61,12 +76,14 @@ class AttributeSetModel
         }
         return null;
     }
+
     public static function update($id, $data, $conn)
     {
         $stmt = $conn->prepare("UPDATE attribute_sets SET name = ?, type = ? WHERE id = ?");
         $stmt->execute([$data['name'], $data['type'], $id]);
         return $stmt;
     }
+    
     public static function delete($id, $conn)
     {
         $stmt = $conn->prepare("DELETE FROM attribute_sets WHERE id = ?");

@@ -4,6 +4,15 @@ namespace App\Model;
 
 class CategoryModel
 {
+    public $id;
+    public $name;
+
+    public function __construct($id, $name)
+    {
+        $this->id = $id;
+        $this->name = $name;
+    }
+
     public static function findAll($conn)
     {
         $categories = [];
@@ -27,13 +36,16 @@ class CategoryModel
         }
         return $categories;
     }
+    
     public static function findById($id, $conn)
     {
         $stmt = $conn->prepare("SELECT * FROM categories WHERE id = ?");
         $stmt->execute([$id]);
         $category = $stmt->fetch(\PDO::FETCH_ASSOC);
-        return $category;
+        if (!$category) return null;
+        return new self($category['id'], $category['name']);
     }
+
     public static function create($data, $conn)
     {
         $stmt = $conn->prepare("INSERT INTO categories (name) VALUES (?)");
@@ -44,12 +56,14 @@ class CategoryModel
         }
         return null;
     }
+
     public static function update($id, $data, $conn)
     {
         $stmt = $conn->prepare("UPDATE categories SET name = ? WHERE id = ?");
         $stmt->execute([$data['name'], $id]);
         return $stmt;
     }
+
     public static function delete($id, $conn)
     {
         $stmt = $conn->prepare("DELETE FROM categories WHERE id = ?");

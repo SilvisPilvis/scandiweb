@@ -35,31 +35,6 @@ use App\Packages\Cuid\Cuid;
 
 class ProductController extends Controller
 {
-    // Instance properties (optional if you mainly use static methods returning arrays)
-    private $_id;
-    private $_name;
-    private $_inStock;
-    private $_gallery; // Array of strings (URLs)
-    private $_description;
-    private $_category; // Category object/array
-    private $_attributes; // Array of AttributeSet objects/arrays
-    private $_prices; // Array of Price objects/arrays
-    private $_brand;
-
-    // Corrected Constructor (if you plan to instantiate ProductModel objects)
-    public function __construct($id, $name, $inStock, $gallery, $description, $category, $attributes, $prices, $brand)
-    {
-        $this->_id = $id;
-        $this->_name = $name;
-        $this->_inStock = $inStock;
-        $this->_gallery = $gallery;
-        $this->_description = $description;
-        $this->_category = $category;
-        $this->_attributes = $attributes;
-        $this->_prices = $prices;
-        $this->_brand = $brand;
-    }
-
     // findAll would also need to fetch related data for full product objects
     public static function findAll($conn)
     {
