@@ -18,12 +18,11 @@ Fixes:
 - [x] Replace color attribute with colored button
 - [x] Cant change attributes in cart view
 - [x] Reloading while on product page returns an error? (Doesn't for me and vercel)
-- [ ] After reloading while cart isnt empty the cart overlay is open but should be closed. only open when adding product
+- [x] After reloading while cart isnt empty the cart overlay is open but should be closed. only open when adding product
 - [ ] Order placed successfully shown even if an error gets returned
 - [ ] Use models
 - [ ] Fetch categories dynamically from the API  
 - [ ] Remove any separate GraphQL queries for individual categories  
-- [ ] Eliminate dedicated pages per category; implement dynamic routing/loading  
 - [ ] Closer to Figma design
 
 Original TODO:
