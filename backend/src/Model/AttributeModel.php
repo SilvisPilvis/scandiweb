@@ -4,6 +4,17 @@ namespace App\Model;
 
 class AttributeModel
 {
+    public $id;
+    public $displayValue;
+    public $value;
+
+    public function __construct($id, $displayValue, $value)
+    {
+        $this->id = $id;
+        $this->displayValue = $displayValue;
+        $this->value = $value;
+    }
+
     public static function findAll($conn)
     {
         $attributes = [];
@@ -27,15 +38,17 @@ class AttributeModel
         }
         return $attributes;
     }
+
     public static function findById($id, $conn)
     {
         $stmt = $conn->prepare("SELECT * FROM attributes WHERE id = ?");
         $stmt->execute([$id]);
         $attribute = $stmt->fetch(\PDO::FETCH_ASSOC);
-        $attribute['displayValue'] = $attribute['display_value'];
-        unset($attribute['display_value']);
-        return $attribute;
+        if (!$attribute) return null;
+        $displayValue = $attribute['display_value'];
+        return new self($attribute['id'], $displayValue, $attribute['value']);
     }
+
     public static function create($data, $conn)
     {
         $stmt = $conn->prepare("INSERT INTO attributes (display_value, value) VALUES (?, ?)");
@@ -46,12 +59,14 @@ class AttributeModel
         }
         return null;
     }
+
     public static function update($id, $data, $conn)
     {
         $stmt = $conn->prepare("UPDATE attributes SET display_value = ?, value = ? WHERE id = ?");
         $stmt->execute([$data['displayValue'], $data['value'], $id]);
         return $stmt;
     }
+    
     public static function delete($id, $conn)
     {
         $stmt = $conn->prepare("DELETE FROM attributes WHERE id = ?");
