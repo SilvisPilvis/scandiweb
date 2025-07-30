@@ -35,7 +35,6 @@ async function PlaceOrderMutation(items: Item[]) {
 
 async function PlaceOrder(items: Item[]) {
     let res = await PlaceOrderMutation(items);
-    // console.log("Response:", res)
     if (res.errors) {
         alert("Error placing order");
         console.error("Error:", res.errors[0].message)
@@ -293,10 +292,11 @@ export const Route = createRootRoute({
                     </Link>{' '}
                     {!loading && categories.map((name) => (
                         <Link
-                            key={name}
-                            to={`/${name}`}
-                            activeProps={{ 'data-testid': 'active-category-link', 'className': 'font-bold' }}
-                            inactiveProps={{ 'data-testid': 'category-link' }}
+                        to="/$category"
+                        params={{ category: name }}
+                        key={name}
+                        activeProps={{ 'data-testid': 'active-category-link', 'className': 'font-bold' }}
+                        inactiveProps={{ 'data-testid': 'category-link' }}
                         >
                             {startCase(camelCase(name))}
                         </Link>
