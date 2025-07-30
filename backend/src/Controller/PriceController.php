@@ -2,59 +2,32 @@
 
 namespace App\Controller;
 
+use App\Model\PriceModel;
+
 class PriceController extends Controller
 {
-    public static function findAll($conn)
+    private $priceModel;
+    private $conn;
+
+    public function __construct($conn)
     {
-        $prices = [];
-        $rows = $conn->query('SELECT * FROM prices');
-
-        if ($rows === false) {
-            $error = $conn->error;
-            error_log("Database error in PriceModel::findAll: " . $error);
-            throw new \RuntimeException("Database error fetching price IDs: " . $error);
-        }
-
-        if (!is_array($rows)) {
-            error_log("Unexpected return type from DB query in PriceModel::findAll");
-            throw new \RuntimeException("Unexpected data format from database query.");
-        }
-
-        foreach ($rows as $row) {
-            $prices[] = [
-                'amount' => (float)$row['amount'],
-                'currency' => [
-                    'label' => $row['currency'],
-                    'symbol' => $row['currency'] === 'USD' ? '$' : $row['currency']
-                ]
-            ];
-        }
-        return $prices;
+        $this->conn = $conn;
+        $this->priceModel = new \App\Model\PriceModel($conn);
     }
 
-    public static function findById($id, $conn)
+    public function findAll()
     {
-        $stmt = $conn->prepare("SELECT * FROM prices WHERE id = ?");
-        $stmt->execute([$id]);
-        $price = $stmt->fetch(\PDO::FETCH_ASSOC);
-        return $price;
+        return $this->priceModel->findAll();
     }
 
-    public static function findByProductId($id, $conn)
+    public function findById($id)
     {
-        $stmt = $conn->prepare("SELECT * FROM prices WHERE product_id = ?");
-        $stmt->execute([$id]);
-        $prices = [];
-        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $prices[] = [
-                'amount' => (float)$row['amount'],
-                'currency' => [
-                    'label' => $row['currency'],
-                    'symbol' => $row['currency'] === 'USD' ? '$' : $row['currency']
-                ]
-            ];
-        }
-        return $prices;
+        return $this->priceModel->findById($id);
+    }
+
+    public function findByProductId($id)
+    {
+        return $this->priceModel->findByProductId($id);
     }
 
     /**
@@ -65,28 +38,18 @@ class PriceController extends Controller
      *
      * @return array|null An array representing the created price, matching GraphQL PriceType, or null on failure.
      */
-    public static function create($data, $conn)
+    public function create($data)
     {
-        $stmt = $conn->prepare("INSERT INTO prices (amount, currency) VALUES (?, ?)");
-        $stmt->execute([$data['amount'], $data['currency']]);
-        $insert_id = $conn->lastInsertId();
-        if ($insert_id) {
-            return self::findById($insert_id, $conn);
-        }
-        return null;
+        return $this->priceModel->create($data);
     }
 
-    public static function update($id, $data, $conn)
+    public function update($id, $data)
     {
-        $stmt = $conn->prepare("UPDATE prices SET amount = ?, currency = ? WHERE id = ?");
-        $stmt->execute([$data['amount'], $data['currency'], $id]);
-        return $stmt;
+        return $this->priceModel->update($id, $data);
     }
 
-    public static function delete($id, $conn)
+    public function delete($id)
     {
-        $stmt = $conn->prepare("DELETE FROM prices WHERE id = ?");
-        $stmt->execute([$id]);
-        return $stmt;
+        return $this->priceModel->delete($id);
     }
 }

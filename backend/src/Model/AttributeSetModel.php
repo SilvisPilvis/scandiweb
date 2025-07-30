@@ -7,20 +7,19 @@ class AttributeSetModel
     public $id;
     public $name;
     public $type;
+    private $conn;
 
-    public function __construct($id, $name, $type)
+    public function __construct($conn, $id = null, $name = null, $type = null)
     {
-        $this->id = $id;
-        $this->name = $name;
-        $this->type = $type;
+        $this->conn = $conn;
     }
 
-    public static function findAll($conn)
+    public function findAll()
     {
         $attributeSets = [];
-        $rows = $conn->query('SELECT id FROM attribute_sets');
+        $rows = $this->conn->query('SELECT id FROM attribute_sets');
         if ($rows === false) {
-            $error = $conn->error;
+            $error = $this->conn->error;
             error_log("Database error in AttributeSetModel::findAll: " . $error);
             throw new \RuntimeException("Database error fetching attribute set IDs: " . $error);
         }
@@ -30,7 +29,7 @@ class AttributeSetModel
         }
         foreach ($rows as $row) {
             if (isset($row['id'])) {
-                $attributeSet = self::findById($row['id'], $conn);
+                $attributeSet = $this->findById($row['id']);
                 if ($attributeSet) {
                     $attributeSets[] = $attributeSet;
                 }
@@ -39,18 +38,19 @@ class AttributeSetModel
         return $attributeSets;
     }
 
-    public static function findById($id, $conn)
+    public function findById($id)
     {
-        $stmt = $conn->prepare("SELECT * FROM attribute_sets WHERE id = ?");
+        $stmt = $this->conn->prepare("SELECT * FROM attribute_sets WHERE id = ?");
         $stmt->execute([$id]);
-        $attributeSet = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $stmt->setFetchMode(\PDO::FETCH_CLASS, AttributeSetModel::class, [$this->conn]);
+        $attributeSet = $stmt->fetch();
         if (!$attributeSet) return null;
-        return new self($attributeSet['id'], $attributeSet['name'], $attributeSet['type']);
+        return $attributeSet;;
     }
 
-    public static function findItemsBySetId($id, $conn)
+    public function findItemsBySetId($id)
     {
-        $stmt = $conn->prepare(
+        $stmt = $this->conn->prepare(
             "SELECT a.* 
             FROM attributes a
             JOIN attribute_set_items asi ON a.id = asi.attribute_id
@@ -66,27 +66,27 @@ class AttributeSetModel
         return $items;
     }
 
-    public static function create($data, $conn)
+    public function create($data)
     {
-        $stmt = $conn->prepare("INSERT INTO attribute_sets (name, type) VALUES (?, ?)");
+        $stmt = $this->conn->prepare("INSERT INTO attribute_sets (name, type) VALUES (?, ?)");
         $stmt->execute([$data['name'], $data['type']]);
-        $insert_id = $conn->lastInsertId();
+        $insert_id = $this->conn->lastInsertId();
         if ($insert_id) {
-            return self::findById($insert_id, $conn);
+            return $this->findById($insert_id);
         }
         return null;
     }
 
-    public static function update($id, $data, $conn)
+    public function update($id, $data)
     {
-        $stmt = $conn->prepare("UPDATE attribute_sets SET name = ?, type = ? WHERE id = ?");
+        $stmt = $this->conn->prepare("UPDATE attribute_sets SET name = ?, type = ? WHERE id = ?");
         $stmt->execute([$data['name'], $data['type'], $id]);
         return $stmt;
     }
     
-    public static function delete($id, $conn)
+    public function delete($id)
     {
-        $stmt = $conn->prepare("DELETE FROM attribute_sets WHERE id = ?");
+        $stmt = $this->conn->prepare("DELETE FROM attribute_sets WHERE id = ?");
         $stmt->execute([$id]);
         return $stmt;
     }

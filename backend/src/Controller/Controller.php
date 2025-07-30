@@ -33,9 +33,9 @@ abstract class Controller
     // protected string $primaryKeyType = 'int';
     // public bool $autoIncrement = true;
 
-    abstract public static function findAll($conn);
-    abstract public static function findById($id, $conn);
-    abstract public static function create($data, $conn);
-    abstract public static function update($id, $data, $conn);
-    abstract public static function delete($id, $conn);
+    abstract public function findAll();
+    abstract public function findById($id);
+    abstract public function create($data);
+    abstract public function update($id, $data);
+    abstract public function delete($id);
 }

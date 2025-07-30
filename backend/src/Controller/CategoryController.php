@@ -2,82 +2,43 @@
 
 namespace App\Controller;
 
+use App\Model\CategoryModel;
+
 class CategoryController extends Controller
 {
-    private $_id;
-    private $_name;
 
-    public function __construct($id, $name, $conn)
+    private $categoryModel;
+
+    public function __construct($conn, $id = null, $name = null)
     {
-        $id = $id;
-        $name = $name;
+        $this->categoryModel = new \App\Model\CategoryModel($conn);
     }
 
-    public static function findAll($conn)
+    public function findAll()
     {
-        $categories = [];
-        $rows = $conn->query('SELECT id FROM categories');
-
-        if ($rows === false) {
-            // Check if the query failed
-            $error = $conn->error; // Or however your $conn object exposes errors
-            error_log("Database error in CategoryModel::findAll: " . $error);
-            throw new \RuntimeException("Database error fetching category IDs: " . $error);
-        }
-
-        if (!is_array($rows)) {
-            // Extra check if it might return something else weird
-            error_log("Unexpected return type from DB query in CategoryModel::findAll");
-            throw new \RuntimeException("Unexpected data format from database query.");
-        }
-
-        foreach ($rows as $row) {
-            // Loop through the array of rows
-            if (isset($row['id'])) {
-                $category = self::findById($row['id'], $conn);
-                if ($category) {
-                    $categories[] = $category;
-                }
-            }
-        }
-
-        // No $result->close() needed because $conn->query() already fetched everything
-        return $categories;
+        $categories = $this->categoryModel->findAll();
+        return array_map(function($cat) {
+            return $cat->toArray();
+        }, $categories);
     }
 
-    public static function findById($id, $conn)
+    public function findById($id)
     {
-        $stmt = $conn->prepare("SELECT * FROM categories WHERE id = ?");
-        $stmt->execute([$id]);
-        $category = $stmt->fetch(\PDO::FETCH_ASSOC);
-        return $category;
+        return $this->categoryModel->findById($id);
     }
 
-    public static function create($data, $conn)
+    public function create($data)
     {
-        $sql = "INSERT INTO categories (name) VALUES (?)";
-        // Use the new insert method that takes params and returns lastInsertId
-        $insert_id = $conn->insert($sql, ['name' => $data['name']]);
-
-        if ($insert_id) {
-            return self::findById($insert_id, $conn);
-        } else {
-            return null;
-        }
-        return null;
+        return $this->categoryModel->create($data);
     }
 
-    public static function update($id, $data, $conn)
+    public function update($id, $data)
     {
-        $stmt = $conn->prepare("UPDATE categories SET name = ? WHERE id = ?");
-        $stmt->execute([$data['name'], $id]);
-        return $stmt;
+        return $this->categoryModel->update($id, $data);
     }
 
-    public static function delete($id, $conn)
+    public function delete($id)
     {
-        $stmt = $conn->prepare("DELETE FROM categories WHERE id = ?");
-        $stmt->execute([$id]);
-        return $stmt;
+        return $this->categoryModel->delete($id);
     }
 }
