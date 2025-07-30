@@ -3,6 +3,7 @@ import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import { useCart, type Item } from 'react-use-cart'
 import CartIcon from '../icons/CartIcon'
 import CartEmpty from '../icons/CartEmpty'
+import BagIcon from '../icons/Bag'
 import { useState, useEffect, useRef } from 'react'
 import CartAttributeSelector from '../components/CartAttributeSelector'
 import logger from '../components/logger'
@@ -164,7 +165,7 @@ function Cart({ initialOpen = false }: CartProps) {
             </div>
         );
 
-    console.log("First Render:", isFirstRender.current)
+    // console.log("First Render:", isFirstRender.current)
 
     // If cart is not empty and is open and is first render, close it
     if ((isOpen && !isEmpty) && isFirstRender.current) {
@@ -176,7 +177,7 @@ function Cart({ initialOpen = false }: CartProps) {
         <>
             <div className="fixed inset-0 bg-black opacity-50 z-40" data-testid="cart-overlay" onClick={() => setIsOpen(false)} />
             <div data-testid='cart-btn'
-                className="cart-container border border-dashed border-gray-300 p-5 w-[400px] my-5 mx-auto rounded-lg bg-neutral-600 absolute z-50"
+                className="cart-container border border-dashed border-gray-300 p-5 w-[400px] my-5 mx-auto bg-neutral-600 absolute z-50"
             >
                 <div className="cart-header border-b border-dashed border-gray-300 pb-2.5 mb-5 flex row justify-between">
                     <h2 className="m-0 text-xl font-bold" data-testid='cart-total'>
@@ -205,6 +206,7 @@ function Cart({ initialOpen = false }: CartProps) {
                                                 {attribute.items && attribute.items.length > 0 && (
                                                     <CartAttributeSelector
                                                         options={attribute.items.map((item: any) => item.displayValue)}
+                                                        trueValue={attribute.items.map((item: any) => item.value)}
                                                         attributeName={attribute.id}
                                                         brand={item.brand}
                                                         selectedValue={item.attributes[attribute.id]}
@@ -282,30 +284,39 @@ export const Route = createRootRoute({
 
         return (
             <>
-                <div className="p-2 flex gap-2">
+            <div className="p-2 flex justify-between w-full bg-neutral-600 px-16 top-0 fixed">
+                <div className="flex gap-2 flex-1">
+                <Link
+                    to="/"
+                    activeProps={{ 'data-testid': 'active-category-link', 'className': 'font-bold border-b-2 border-white' }}
+                    inactiveProps={{ 'data-testid': 'category-link' }}
+                >
+                    Home
+                </Link>{' '}
+                {!loading && categories.map((name) => (
                     <Link
-                        to="/"
-                        activeProps={{ 'data-testid': 'active-category-link', 'className': 'font-bold' }}
-                        inactiveProps={{ 'data-testid': 'category-link' }}
+                    to="/$category"
+                    params={{ category: name }}
+                    key={name}
+                    activeProps={{ 'data-testid': 'active-category-link', 'className': 'font-bold border-b-2 border-white' }}
+                    inactiveProps={{ 'data-testid': 'category-link' }}
                     >
-                        Home
-                    </Link>{' '}
-                    {!loading && categories.map((name) => (
-                        <Link
-                        to="/$category"
-                        params={{ category: name }}
-                        key={name}
-                        activeProps={{ 'data-testid': 'active-category-link', 'className': 'font-bold' }}
-                        inactiveProps={{ 'data-testid': 'category-link' }}
-                        >
-                            {startCase(camelCase(name))}
-                        </Link>
-                    ))}
-                    <Cart />
+                    {startCase(camelCase(name))}
+                    </Link>
+                ))}
                 </div>
-                <hr />
-                <Outlet />
-                <TanStackRouterDevtools />
+                
+                <div className="flex-1 flex justify-center">
+                <BagIcon />
+                </div>
+                
+                <div className="flex-1 flex justify-end">
+                <Cart />
+                </div>
+            </div>
+            <hr />
+            <Outlet />
+            <TanStackRouterDevtools />
             </>
         );
     },

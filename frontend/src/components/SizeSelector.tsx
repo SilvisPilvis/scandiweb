@@ -24,10 +24,12 @@ const SizeSelector = ({sizes, test, name, selectedSize, onSizeChange}: {sizes: s
                 : (selectedSize === size ? 'white' : 'black'),
               opacity: isHexColor(test[index])
                 ? (selectedSize === size ? 1 : 0.5)
-                : (selectedSize === '' ? 0.7 : 1)
+                : (selectedSize === '' ? 0.7 : 1),
+              minWidth: isHexColor(test[index]) ? '40px' : 'auto',
+              height: isHexColor(test[index]) ? '40px' : 'auto'
             }}
           >
-            {size}
+            {!isHexColor(test[index]) && size}
           </button>
         ))}
       </div>
