@@ -120,7 +120,7 @@ function Product() {
         {error && <div>Error: {error.message}</div>}
         {data &&
         <>
-            <div className="flex flex-row gap-4 text-xl">
+            <div className="flex flex-row gap-4 text-xl h-full">
                 <Gallery images={data.data.getProduct.gallery} />
                 <div>
                 <p className="text-2xl font-bold">{data.data.getProduct.name}</p>
