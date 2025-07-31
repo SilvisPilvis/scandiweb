@@ -73,26 +73,26 @@ async function fetchProductsByCategory(category: string) {
               id
               name
               in_stock
+              brand
               gallery
               description
               prices {
-              amount
-              currency {
-                  label
-                  symbol
-              }
+                amount
+                currency {
+                    label
+                    symbol
+                }
               }
               attributes {
-              id
-              items {
-                  id
-                  displayValue
-                  value
+                id
+                items {
+                    id
+                    displayValue
+                    value
+                }
               }
-              }
-              brand
               category {
-              name
+                name
               }
           }
       }
@@ -109,7 +109,7 @@ function CategoryIndex() {
     queryFn: () => fetchProductsByCategory(category)
   })
 
-  console.log(`Category is: ${category}`)
+  // console.log(`Category is: ${category}`)
 
   if (isLoading) return <div>Loading products...</div>;
   if (error) return <div>Error fetching products: {error.message}</div>;
@@ -124,7 +124,7 @@ function CategoryIndex() {
 
 
     return (
-    <>
+    <div className='pt-16'>
         <h1 className="text-3xl font-bold text-center my-4">{ startCase(camelCase(category)) } Products</h1>
         <main className="flex flex-row gap-4 flex-wrap justify-center">
             {products.length === 0 && <div>No products found for the in the { startCase(camelCase(category)) } category.</div>}
@@ -140,6 +140,6 @@ function CategoryIndex() {
                 </div>
             ))}
         </main>
-    </>
+    </div>
   )
 }

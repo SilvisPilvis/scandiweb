@@ -284,26 +284,19 @@ export const Route = createRootRoute({
 
         return (
             <>
-            <div className="p-2 flex justify-between w-full bg-neutral-600 px-16 absolute top-0 z-10">
+            <div className="p-2 flex justify-between w-full bg-white px-16 absolute top-0 z-10">
                 <div className="flex gap-2 flex-1">
-                <Link
-                    to="/"
-                    activeProps={{ 'data-testid': 'active-category-link', 'className': 'font-bold border-b-2 border-white' }}
-                    inactiveProps={{ 'data-testid': 'category-link' }}
-                >
-                    Home
-                </Link>{' '}
-                {!loading && categories.map((name) => (
-                    <Link
-                    to="/$category"
-                    params={{ category: name }}
-                    key={name}
-                    activeProps={{ 'data-testid': 'active-category-link', 'className': 'font-bold border-b-2 border-white' }}
-                    inactiveProps={{ 'data-testid': 'category-link' }}
-                    >
-                    {startCase(camelCase(name))}
-                    </Link>
-                ))}
+                    {!loading && categories.map((name) => (
+                        <Link
+                        to="/$category"
+                        params={{ category: name }}
+                        key={name}
+                        activeProps={{ 'data-testid': 'active-category-link', 'className': 'font-bold border-b-2 border-lime-500 text-black' }}
+                        inactiveProps={{ 'data-testid': 'category-link' }}
+                        >
+                        {startCase(camelCase(name))}
+                        </Link>
+                    ))}
                 </div>
                 
                 <div className="flex-1 flex justify-center">
