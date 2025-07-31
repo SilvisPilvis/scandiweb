@@ -175,7 +175,7 @@ function Cart({ initialOpen = false }: CartProps) {
 
     return (
         <>
-            <div className="fixed inset-0 bg-black opacity-50 z-40" data-testid="cart-overlay" onClick={() => setIsOpen(false)} />
+            <div className="fixed inset-0 bg-black opacity-50 z-0" data-testid="cart-overlay" onClick={() => setIsOpen(false)} />
             <div data-testid='cart-btn'
                 className="cart-container border border-dashed border-gray-300 p-5 w-[400px] my-5 mx-auto bg-neutral-600 absolute z-50"
             >
@@ -284,7 +284,7 @@ export const Route = createRootRoute({
 
         return (
             <>
-            <div className="p-2 flex justify-between w-full bg-neutral-600 px-16 top-0 fixed">
+            <div className="p-2 flex justify-between w-full bg-neutral-600 px-16 absolute top-0 z-10">
                 <div className="flex gap-2 flex-1">
                 <Link
                     to="/"
