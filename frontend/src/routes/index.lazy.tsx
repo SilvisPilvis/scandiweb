@@ -52,7 +52,7 @@ function Index() {
     })
 
     return (
-        <>
+        <div className='pt-16'>
             <h1 className="text-3xl font-bold text-center my-4">All Products</h1>
             <main className="flex flex-row gap-4 flex-wrap justify-center">
                 {isLoading && <div>Loading...</div>}
@@ -70,7 +70,7 @@ function Index() {
                     ))
                 }
             </main>
-        </>
+        </div>
     )
 }
 

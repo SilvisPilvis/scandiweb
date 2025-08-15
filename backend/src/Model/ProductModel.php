@@ -23,6 +23,166 @@ class ProductModel
         $this->conn = $conn;
     }
 
+    static function new($conn): ProductModel
+    {
+        $product = new ProductModel($conn);
+        $product->category = new CategoryModel($conn);
+        $prices = new PriceModel($conn);
+        $product->prices = [$prices];
+        $currency = new CurrencyModel($conn);
+        $prices->currency = $currency;
+        $attribute = new AttributeSetModel($conn);
+        $product->attributes = [$attribute];
+        return $product;
+    }
+
+    /**
+     * Get products by category name
+     * @param array $args Arguments containing 'category'
+     * @return array
+     * @throws Exception
+     */
+    public function findByCategory(array $args): ?array
+    {
+        if (empty($args['category'])) {
+            throw new \InvalidArgumentException('Category name is required');
+        }
+
+        // Fetch product data with related category
+        $stmt = $this->conn->prepare(
+            "SELECT
+            p.id AS id,
+            p.name AS name,
+            (p.in_stock <> 0) AS in_stock,
+            p.brand AS brand,
+            p.description AS description,
+
+            -- category object (non-null)
+            JSON_OBJECT('id', c.id, 'name', c.name) AS category,
+
+            -- gallery: JSON array of image_url strings (empty array if none)
+            COALESCE((
+                SELECT JSON_ARRAYAGG(gi.image_url ORDER BY gi.id)
+                FROM product_gallery_images gi
+                WHERE gi.product_id = p.id
+            ), JSON_ARRAY()) AS gallery,
+
+            -- prices: array of {amount, currency:{label, symbol}}
+            COALESCE((
+                SELECT JSON_ARRAYAGG(
+                JSON_OBJECT(
+                    'amount', pr.amount,
+                    'currency', JSON_OBJECT('label', pr.currency, 'symbol', pr.currency)
+                )
+                )
+                FROM prices pr
+                WHERE pr.product_id = p.id
+            ), JSON_ARRAY()) AS prices,
+
+            -- attributes: array of attribute-set objects {id, items: [ {id, displayValue, value}, ... ] }
+            COALESCE((
+                SELECT JSON_ARRAYAGG(
+                JSON_OBJECT(
+                    'id', aset.id,
+                'name', aset.name,
+                'type', aset.type,
+                    'items', COALESCE((
+                    SELECT JSON_ARRAYAGG(
+                        JSON_OBJECT(
+                        'id', a.id,
+                        'displayValue', a.display_value,
+                        'value', a.value
+                        )
+                    )
+                    FROM attribute_set_items asi
+                    JOIN attributes a ON a.id = asi.attribute_id
+                    WHERE asi.attribute_set_id = aset.id
+                    ), JSON_ARRAY())
+                )
+                )
+                FROM product_attribute_sets pas
+                JOIN attribute_sets aset ON aset.id = pas.attribute_set_id
+                WHERE pas.product_id = p.id
+            ), JSON_ARRAY()) AS attributes
+
+            FROM products p
+            JOIN categories c ON c.id = p.category_id
+            WHERE c.name = ?
+            ORDER BY p.name;"
+        );
+        $stmt->execute([$args['category']]);
+        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        
+        if ($rows === false) {
+            throw new \Exception("Database error fetching products by category");
+        }
+        
+        // Create main product container
+        $collection = [];
+
+        foreach ($rows as $row) {
+            $product = new ProductModel($this->conn);
+            $product->id = $row['id'];
+            $product->name = $row['name'];
+            $product->in_stock = $row['in_stock'];
+            $product->gallery =  json_decode($row['gallery']);
+            $product->description = $row['description'];
+            $product->brand = $row['brand'];
+            $product->category = new CategoryModel($this->conn);
+            $product->category->id = json_decode($row['category'])->id;
+            $product->category_id = json_decode($row['category'])->id;
+            $product->category->name = json_decode($row['category'])->name; // from categories table
+            $product->attributes = array();
+            $product->prices = array();
+
+            foreach (json_decode($row['prices']) as $price) {
+                $product->prices[] = new PriceModel($this->conn);
+                $product->prices[count($product->prices) - 1]->amount = $price->amount;
+                $product->prices[count($product->prices) - 1]->currency = new CurrencyModel($this->conn);
+                $product->prices[count($product->prices) - 1]->currency->label = $price->currency->label;
+                $product->prices[count($product->prices) - 1]->currency->symbol = $price->currency->symbol;
+            }
+
+            $attributeSets = [];
+
+            $raw = $row['attributes'] ?? '[]';
+            $decoded = json_decode($raw, true); // associative arrays
+
+            if (is_array($decoded)) {
+                foreach ($decoded as $aset) {
+                    // Defensive: ensure required keys exist and normalize names
+                    $id = isset($aset['id']) ? (string) $aset['id'] : null;
+                    $name = isset($aset['name']) ? (string) $aset['name'] : '';
+                    $type = isset($aset['type']) ? (string) $aset['type'] : '';
+
+                    $items = [];
+                    if (!empty($aset['items']) && is_array($aset['items'])) {
+                        foreach ($aset['items'] as $it) {
+                            $items[] = [
+                                'id' => isset($it['id']) ? (string) $it['id'] : null,
+                                'displayValue' => isset($it['displayValue']) ? (string) $it['displayValue'] : '',
+                                'value' => isset($it['value']) ? (string) $it['value'] : '',
+                            ];
+                        }
+                    }
+
+                    $attributeSets[] = [
+                        'id' => $id,
+                        'name' => $name,
+                        'type' => $type,
+                        'items' => $items,
+                    ];
+                }
+            }
+
+            $product->attributes = $attributeSets;
+
+            array_push($collection, $product);
+        }
+
+        return $collection;
+    }
+
     public function findAll()
     {
         $products = [];
@@ -47,7 +207,7 @@ class ProductModel
         return $products;
     }
 
-    public function findById($id)
+    public function findById($id): ?ProductModel
     {
         $product = new self($this->conn);
 
@@ -104,8 +264,6 @@ class ProductModel
             $currentSet['items'] = $attributeSetModel->findItemsBySetId($currentSet['id']);
             array_push($attributeSets, $currentSet);
         }
-        // $atributeSetsData = $atributeSetsStmt->fetchAll(\PDO::FETCH_ASSOC);
-        // $product->attributes = $atributeSetsData;
         $product->attributes = $attributeSets;
 
         // Make sure inStock is a boolean

@@ -9,7 +9,7 @@ const ProductCard = ({id, name, in_stock, gallery, prices, attributes, brand}: {
   return (
     <>
     {in_stock ? (
-    <div className="flex flex-col items-start justify-center gap-4 max-w-sm group hover:bg-slate-700 rounded-lg p-4" data-testid={"product-" + kebabCase(name)}>
+    <div className="flex flex-col items-start justify-center gap-4 max-w-sm group hover:bg-gray-200 rounded-lg p-4" data-testid={"product-" + kebabCase(name)}>
         <div className="relative">
           <div className="w-72 h-72 overflow-hidden rounded-lg">
             <img 
@@ -44,7 +44,7 @@ const ProductCard = ({id, name, in_stock, gallery, prices, attributes, brand}: {
         <p className="text-lg font-bold">{prices[0].currency.symbol}{prices[0].amount}</p>
     </div>
     ) : (
-        <div className="flex flex-col items-start justify-center gap-4 max-w-sm group hover:bg-slate-700 rounded-lg p-4" data-testid={"product-" + kebabCase(name)}>
+        <div className="flex flex-col items-start justify-center gap-4 max-w-sm group hover:bg-gray-200 rounded-lg p-4" data-testid={"product-" + kebabCase(name)}>
             <div className="relative">
                 <div className="w-72 h-72 overflow-hidden rounded-lg">
                   <img 
