@@ -74,5 +74,4 @@ function Index() {
     )
 }
 
-// export default App
 export default Route
