@@ -219,8 +219,6 @@ class ProductModel
         $product = $stmt->fetch();
         if (!$product) return null;
 
-        // error_log(json_encode($product));
-
         // 2. Fetch Category data using CategoryModel findById
         $categoryModel = new \App\Model\CategoryModel($this->conn);
         $categoryData = $categoryModel->findById($product->category_id);
@@ -268,8 +266,6 @@ class ProductModel
 
         // Make sure inStock is a boolean
         $product->in_stock = (bool)$product->in_stock;
-
-        // error_log(json_encode($product));
 
         return $product;
     }

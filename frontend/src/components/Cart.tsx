@@ -1,6 +1,6 @@
 // components/Cart.tsx
 import { useState, useEffect, useRef } from 'react'
-import { useCart, type Item } from 'react-use-cart'
+import { useCart} from 'react-use-cart'
 import CartIcon from '../icons/CartIcon'
 import CartEmpty from '../icons/CartEmpty'
 import logger from './logger'
