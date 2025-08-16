@@ -7,7 +7,7 @@ import Gallery from '../../components/Gallery'
 import { kebabCase } from 'lodash'
 import { useState, useEffect } from 'react'
 import logger from '../../components/logger'
-import { getCartItemId } from '../__root'
+import { getCartItemId } from '../../utils/cartUtils'
 
 export const Route = createFileRoute('/product/$productId')({
   component: Product,

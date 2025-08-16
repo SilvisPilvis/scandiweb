@@ -42,14 +42,15 @@ class OrderResolver
      */
     public function createOrder(array $args): array
     {
-        if (empty($args['input']['items'])) {
+
+        if (empty($args['items'])) {
             throw new \InvalidArgumentException('Order items are required');
         }
 
         // Serialize items if array, otherwise use as-is
-        $itemsToInsert = is_array($args['input']['items']) 
-            ? json_encode($args['input']['items']) 
-            : $args['input']['items'];
+        $itemsToInsert = is_array($args['items']) 
+            ? json_encode($args['items']) 
+            : $args['items'];
 
         // Insert order and get ID
         $orderId = $this->db->insert(
