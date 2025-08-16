@@ -3,8 +3,7 @@ import type { Item } from 'react-use-cart'
 
 async function PlaceOrderMutation(items: Item[]) {
     const modifiedItems = items.map(({ allAttributes, ...rest }) => rest);
-    // logger.info('Items to be placed in the order');
-    // logger.info(JSON.stringify(modifiedItems));
+
     const response = await fetch(import.meta.env.VITE_API_URL, {
         method: 'POST',
         body: JSON.stringify({

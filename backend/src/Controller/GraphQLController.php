@@ -63,7 +63,6 @@ class GraphQLController
         try {
             $contextValue = ['db' => $this->_db];
 
-            // $categoryController = new \App\Controller\CategoryController($this->_db);
             $queryType = new ObjectType(
                 [
                 'name' => 'Query',
@@ -308,9 +307,7 @@ class GraphQLController
             $variableValues = $input['variables'] ?? null;
 
             $rootValue = ['prefix' => 'You said: '];
-            // $result = GraphQLBase::executeQuery($schema, $query, $rootValue, null, $variableValues);
             $result = GraphQLBase::executeQuery($schema, $query, $rootValue, $contextValue, $variableValues);
-            // $output = $result->toArray();
             $output = $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE | DebugFlag::INCLUDE_TRACE);
         } catch (Throwable $e) {
             $output = [

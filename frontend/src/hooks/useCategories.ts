@@ -27,10 +27,7 @@ export function useCategories() {
     useEffect(() => {
         async function fetchCategories() {
             try {
-                // Added try...catch for better error handling
                 const response = await getCategories();
-                // Check if res.data exists and then res.data.getCategories
-                // Also good to check if res.data.getCategories is an array
                 if (response && response.data && Array.isArray(response.data.getCategories)) {
                     setCategories(response.data.getCategories.map((cat: { name: string }) => cat.name));
                 } else {
